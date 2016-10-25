@@ -57,14 +57,15 @@ is not raised."
     (with-current-buffer buf
       (term-char-mode)
       (term-set-escape-char ?\C-x)      ; useful for switching windows
-      (setq-local term-prompt-regexp "^(julia|help\\?|(\\d+\\|debug ))>")
+      (setq-local term-prompt-regexp "^(julia|shell|help\\?|(\\d+\\|debug ))>")
       (run-hooks 'julia-repl-hook))
     buf))
 
 (defun julia-repl-buffer (&optional switch)
   "Return the Julia REPL term buffer, creating one if it does not exist."
   (aif (get-buffer (concat "*" julia-repl-buffer-name "*"))
-      it
+      (unless (term-check-proc it)
+        (julia-repl--start))
     (julia-repl--start)))
 
 (defun julia-repl-raise ()
