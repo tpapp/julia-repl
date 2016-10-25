@@ -30,8 +30,9 @@ Also, note that `C-x C-j` switches to *line* mode, where you can kill/yank, move
 
 ## Limitations
 
-There should be a way to send function definitions without selecting them.
+- There should be a way to send function definitions without selecting them (ie select arount point).
+- Current implementation redefines `term-mode-map` globally to make arrow keys work.
 
 ## Comparison to ESS
 
-A well-known alternative is [ESS](https://ess.r-project.org/), which also supports Julia. `julia-repl` was written because I could not use [Gallium](https://github.com/Keno/Gallium.jl) from ESS, which is based on `comint`, and thus does not allow a fully functioning terminal.
+A well-known alternative is [ESS](https://ess.r-project.org/), which also supports Julia. `julia-repl` was written because I could not use [Gallium](https://github.com/Keno/Gallium.jl) from ESS, which is based on `comint`, and thus does not allow a fully functioning terminal. Also, relying on the interactive features of the Julia REPL implies that I would not need to change this library to incorporate extensions and changes.
