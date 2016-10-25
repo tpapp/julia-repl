@@ -26,6 +26,8 @@ key | action
 `C-c C-e` | invoke `@edit` on region (when applicable) or line
 `C-c C-d` | invode `@doc` on symbol
 
+Also, note that `C-x C-j` switches to *line* mode, where you can kill/yank, move around the buffer, etc. `C-c C-j` switches back.
+
 ## Limitations
 
 There should be a way to send function definitions without selecting them.
