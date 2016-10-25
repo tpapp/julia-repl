@@ -57,6 +57,7 @@ is not raised."
     (with-current-buffer buf
       (term-char-mode)
       (term-set-escape-char ?\C-x)      ; useful for switching windows
+      (setq-local term-prompt-regexp "^(julia|help\\?|(\\d+\\|debug ))>")
       (run-hooks 'julia-repl-hook))
     buf))
 
@@ -128,7 +129,10 @@ buffer."
     (,(kbd "C-c C-z")    . julia-repl-raise)
     (,(kbd "<C-return>") . julia-repl-send-line)
     (,(kbd "C-c C-e")    . julia-repl-edit-region-or-line)
-    (,(kbd "C-c C-d")    . julia-repl-doc)))
+    (,(kbd "C-c C-d")    . julia-repl-doc)
+    ;; keys passed through FIXME write function
+    (,(kbd "M-x")        . execute-extended-command)
+    ))
 
 (provide 'julia-repl)
 ;;; julia-repl.el ends here
