@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t; -*-
 ;;; julia-repl.el --- A minor mode for a Julia REPL based on term
 
 ;; Copyright (C) 2016  Tamas K. Papp
@@ -50,6 +51,24 @@
   "Hook to run after starting a Julia REPL term buffer."
   :type 'hook)
 
+(defun julia-repl--setup-keys ()
+  "Set up keys for the REPL."
+  ;; FIXME global redefinition bad style, check if multi-term is more flexible
+  (cl-flet ((defraw (key string)
+              (define-key term-raw-map key
+                (lambda ()
+                  (interactive)
+                  (term-send-raw-string string))))
+            (defcmd (key command)
+              (define-key term-raw-map key command)))
+    ;; remap for readline (works better)
+    (defraw [up] "\e[A")
+    (defraw [down] "\e[B")
+    (defraw [right] "\e[C")
+    (defraw [left] "\e[D")
+    ;; passed through
+    (defcmd (kbd "M-x" execute-extended-command))))
+
 (defun julia-repl--start ()
   "Start a Julia REPL in a term buffer, return the buffer. Buffer
 is not raised."
@@ -58,13 +77,15 @@ is not raised."
       (term-char-mode)
       (term-set-escape-char ?\C-x)      ; useful for switching windows
       (setq-local term-prompt-regexp "^(julia|shell|help\\?|(\\d+\\|debug ))>")
-      (run-hooks 'julia-repl-hook))
+      (run-hooks 'julia-repl-hook)
+      (julia-repl--setup-keys))
     buf))
 
 (defun julia-repl-buffer (&optional switch)
   "Return the Julia REPL term buffer, creating one if it does not exist."
   (aif (get-buffer (concat "*" julia-repl-buffer-name "*"))
-      (unless (term-check-proc it)
+      (if (term-check-proc it)
+          it
         (julia-repl--start))
     (julia-repl--start)))
 
@@ -131,8 +152,6 @@ buffer."
     (,(kbd "<C-return>") . julia-repl-send-line)
     (,(kbd "C-c C-e")    . julia-repl-edit-region-or-line)
     (,(kbd "C-c C-d")    . julia-repl-doc)
-    ;; keys passed through FIXME write function
-    (,(kbd "M-x")        . execute-extended-command)
     ))
 
 (provide 'julia-repl)
