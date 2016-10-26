@@ -6,7 +6,7 @@ It is recommended that you use this minor mode with [julia-mode](https://github.
 
 ## Loading
 
-Place this in your Emacs initalization files (eg `.emacs`):
+Place this in your Emacs initialization files (eg `.emacs`):
 ```lisp
 (add-to-list 'load-path path-to-julia-repl)
 (require 'julia-repl)
@@ -24,13 +24,13 @@ key | action
 `C-c C-z` | raise the REPL or create a new one
 `C-RET` | send line to REPL
 `C-c C-e` | invoke `@edit` on region (when applicable) or line
-`C-c C-d` | invode `@doc` on symbol
+`C-c C-d` | invoke `@doc` on symbol
 
 Also, note that `C-x C-j` switches to *line* mode, where you can kill/yank, move around the buffer, etc. `C-c C-j` switches back.
 
 ## Limitations
 
-- There should be a way to send function definitions without selecting them (ie select arount point).
+- There should be a way to send function definitions without selecting them (ie select around point).
 - Current implementation redefines `term-mode-map` globally to make arrow keys work.
 
 ## Comparison to ESS
