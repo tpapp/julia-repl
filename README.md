@@ -26,7 +26,11 @@ key | action
 `C-c C-e` | invoke `@edit` on region (when applicable) or line
 `C-c C-d` | invoke `@doc` on symbol
 
-Also, note that `C-x C-j` switches to *line* mode, where you can kill/yank, move around the buffer, etc. `C-c C-j` switches back.
+Also, note some keybindings for `term`:
+1. `C-x C-j` switches to *line mode*, where you can kill/yank, move around the buffer, use standard Emacs keybindings,
+2. `C-c C-j` switches back to *char mode*,
+3. for scrolling, use `S-<prior>` and `S-<next>`.
+See the help of `term` for more.
 
 ## Limitations
 
