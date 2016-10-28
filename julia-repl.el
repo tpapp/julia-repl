@@ -67,7 +67,7 @@
     (defraw [right] "\e[C")
     (defraw [left] "\e[D")
     ;; passed through
-    (defcmd (kbd "M-x") execute-extended-command)))
+    (defcmd (kbd "M-x") #'execute-extended-command)))
 
 (defun julia-repl--start ()
   "Start a Julia REPL in a term buffer, return the buffer. Buffer
