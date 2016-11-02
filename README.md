@@ -31,10 +31,12 @@ key | action
 Also, note some keybindings for `term`:
 
 1. `C-x C-j` switches to *line mode*, where you can kill/yank, move around the buffer, use standard Emacs keybindings,
-2. `C-c C-j` switches back to *char mode*,
+2. `C-c C-k` switches back to *char mode*,
 3. for scrolling, use `S-<prior>` and `S-<next>`.
 
 See the help of `term` for more.
+
+You can customize the option `julia-repl-use-screen`. Set it to `nil` (the default) if you want to have the entire history available (`screen` truncates).
 
 ## Limitations
 
