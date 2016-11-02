@@ -37,7 +37,7 @@ See the help of `term` for more.
 ## Limitations
 
 - There should be a way to send function definitions without selecting them (ie select around point).
-- Current implementation redefines `term-mode-map` globally to make arrow keys work.
+- When not using `screen`, the current implementation redefines `term-mode-map` globally to make arrow keys work.
 
 ## Comparison to ESS
 
