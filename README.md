@@ -4,6 +4,8 @@ This is a minor mode for interacting with a Julia REPL running inside Emacs. The
 
 It is recommended that you use this minor mode with [julia-mode](https://github.com/JuliaEditorSupport/julia-emacs).
 
+![screenshot](./screenshot.png)
+
 ## Loading
 
 Place this in your Emacs initialization files (eg `.emacs`):
