@@ -55,7 +55,7 @@
   "Hook to run after starting a Julia REPL term buffer."
   :type 'hook)
 
-(defcustom julia-repl-use-screen t
+(defcustom julia-repl-use-screen nil
   "Invoke julia via screen (when installed)."
   :type 'boolean)
 
