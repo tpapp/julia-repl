@@ -40,6 +40,7 @@
 ;;; Code:
 
 (require 'anaphora)
+(require 'term)
 
 (defcustom julia-repl-buffer-name "julia"
   "Buffer name for the Julia REPL. Will be surrounded by *'s"
