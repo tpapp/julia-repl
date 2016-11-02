@@ -7,8 +7,8 @@
 
 ;;; Usage:
 ;; Put the following code in your .emacs, site-load.el, or other relevant file
-;; (add-to-list 'load-path "path-to-julia-repl-mode")
-;; (require 'julia-repl-mode)
+;; (add-to-list 'load-path "path-to-julia-repl")
+;; (require 'julia-repl)
 
 ;;; License:
 ;; Permission is hereby granted, free of charge, to any person obtaining
@@ -35,7 +35,7 @@
 ;; the Julia REPL facilities for interactive features, such readline,
 ;; help, debugging.
 
-;; Package-Requires: ((names "Lookup.Latest.Version") (emacs "25"))
+;; Package-Requires: ((emacs "25"))
 
 ;;; Code:
 
