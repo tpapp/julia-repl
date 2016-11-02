@@ -35,9 +35,11 @@
 ;; the Julia REPL facilities for interactive features, such readline,
 ;; help, debugging.
 
-;; Package-Requires: ((emacs "25"))
+;; Package-Requires: ((emacs "25") (anaphora "1.0.0"))
 
 ;;; Code:
+
+(require 'anaphora)
 
 (defcustom julia-repl-buffer-name "julia"
   "Buffer name for the Julia REPL. Will be surrounded by *'s"
