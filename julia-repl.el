@@ -39,6 +39,7 @@
 
 ;;; Code:
 
+(require 'cl)
 (require 'anaphora)
 (require 'term)
 
