@@ -15,7 +15,7 @@ Place this in your Emacs initialization files (eg `.emacs`):
 
 ## Usage
 
-The default keys are as follows.
+`M-x julia-repl`, or `C-c C-z` from a buffer in which the `julia-repl` minor mode is active starts a new inferior Julia process. The keys below can be used to interact with this process.
 
 key | action
 ----|-------
