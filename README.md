@@ -6,7 +6,9 @@ It is recommended that you use this minor mode with [julia-mode](https://github.
 
 <img src="./screenshot.png" width="70%" alt="screenshot">
 
-## Loading
+## Installation and loading
+
+**Please make sure you have at least Emacs 25**. The `term` code changed a bit since Emacs 24, and the package does not support it. For example, Ubuntu users can get the latest Emacs snapshot [here](https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa).
 
 Place this in your Emacs initialization files (eg `.emacs`):
 ```lisp
