@@ -1,9 +1,9 @@
-;;; -*- lexical-binding: t; -*-
-;;; julia-repl.el --- A minor mode for a Julia REPL based on term
+;;; julia-repl.el --- A minor mode for a Julia REPL -*- lexical-binding:t -*-
 
 ;; Copyright (C) 2016  Tamas K. Papp
 ;; Author: Tamas Papp <tkpapp@gmail.com>
 ;; Keywords: languages
+;; Version: 0.0.1
 
 ;;; Usage:
 ;; Put the following code in your .emacs, site-load.el, or other relevant file
@@ -39,7 +39,6 @@
 
 ;;; Code:
 
-(require 'cl)
 (require 'anaphora)
 (require 'term)
 
