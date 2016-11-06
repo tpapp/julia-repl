@@ -35,11 +35,11 @@
 ;; the Julia REPL facilities for interactive features, such readline,
 ;; help, debugging.
 
-;; Package-Requires: ((emacs "25") (anaphora "1.0.0"))
+;; Package-Requires: ((emacs "25") (dash "2.13.0"))
 
 ;;; Code:
 
-(require 'anaphora)
+(require 'dash)
 (require 'term)
 
 (defcustom julia-repl-buffer-name "julia"
@@ -84,8 +84,8 @@ JULIA-REPL-EXECUTABLE, and JULIA-REPL-USE-SCREEN."
                (julia-repl--setup-term-keys)
                (make-term julia-repl-buffer-name julia-repl-executable)))
     (if julia-repl-use-screen
-        (aif (executable-find "screen")
-            (make-term julia-repl-buffer-name it nil
+        (-if-let (screen-executable (executable-find "screen"))
+            (make-term julia-repl-buffer-name screen-executable nil
                        julia-repl-executable)
           (progn
             (message "could not find screen")
@@ -105,9 +105,9 @@ is not raised."
 
 (defun julia-repl-buffer (&optional switch)
   "Return the Julia REPL term buffer, creating one if it does not exist."
-  (aif (get-buffer (concat "*" julia-repl-buffer-name "*"))
-      (if (term-check-proc it)
-          it
+  (-if-let (buffer (get-buffer (concat "*" julia-repl-buffer-name "*")))
+      (if (term-check-proc buffer)
+          buffer
         (julia-repl--start-and-setup))
     (julia-repl--start-and-setup)))
 
