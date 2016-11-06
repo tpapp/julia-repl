@@ -149,9 +149,9 @@ When PREFIX is given, it is prepended."
       (forward-line))))
 
 (defun julia-repl-edit-region-or-line ()
-  "Same as SEND-REGION-OR-LINE, but called with the prefix Base.@edit."
+  "Same as SEND-REGION-OR-LINE, but called with the prefix @edit."
   (interactive)
-  (julia-repl-send-region-or-line "Base.@edit "))
+  (julia-repl-send-region-or-line "@edit "))
 
 (defun julia-repl-send-buffer ()
   "Send the contents of the current buffer to the Julia REPL term
@@ -163,7 +163,7 @@ buffer."
 (defun julia-repl-doc ()
   "Documentation for symbol at point."
   (interactive)
-  (julia-repl--send-string (concat "Base.@doc " (thing-at-point 'symbol t))))
+  (julia-repl--send-string (concat "@doc " (thing-at-point 'symbol t))))
 
 (defun julia-repl-workspace ()
   "Call workspace()."
