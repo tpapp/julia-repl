@@ -29,6 +29,7 @@ key | action
 `C-RET` | send line to REPL
 `C-c C-e` | invoke `@edit` on region (when applicable) or line
 `C-c C-d` | invoke `@doc` on symbol
+`C-c C-w` | `workspace()`
 
 Also, note some keybindings for `term`:
 
