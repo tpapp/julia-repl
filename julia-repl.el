@@ -131,27 +131,34 @@ exist. This should be the standard entry point."
   (julia-repl--send-string (thing-at-point 'line t))
   (forward-line))
 
-(defun julia-repl-send-region-or-line (&optional prefix)
+(defun julia-repl-send-region-or-line (&optional prefix suffix)
   "When there is an active region, send that to the Julia REPL
 term buffer, otherwise the current line.
 
-When PREFIX is given, it is prepended."
+When PREFIX and SUFFIX are given, they are concatenated before
+and after."
   (interactive)
-  (if (use-region-p)
+  (cl-flet ((-send-string (string)
+                          (julia-repl--send-string
+                           (concat prefix string suffix))))
+    (if (use-region-p)
+        (progn
+          (-send-string (buffer-substring-no-properties
+                         (region-beginning) (region-end)))
+          (deactivate-mark))
       (progn
-        (julia-repl--send-string
-         (concat prefix
-                 (buffer-substring-no-properties (region-beginning)
-                                                 (region-end))))
-        (deactivate-mark))
-    (progn
-      (julia-repl--send-string (concat prefix (thing-at-point 'line t)))
-      (forward-line))))
+        (-send-string (thing-at-point 'line t))
+        (forward-line)))))
 
-(defun julia-repl-edit-region-or-line ()
+(defun julia-repl-edit ()
   "Same as SEND-REGION-OR-LINE, but called with the prefix @edit."
   (interactive)
   (julia-repl-send-region-or-line "@edit "))
+
+(defun julia-repl-macroexpand ()
+  "Same as SEND-REGION-OR-LINE, but wrapped in a macroexpand."
+  (interactive)
+  (julia-repl-send-region-or-line "macroexpand(quote " " end)"))
 
 (defun julia-repl-send-buffer ()
   "Send the contents of the current buffer to the Julia REPL term
@@ -178,9 +185,10 @@ buffer."
     (,(kbd "C-c C-b")    . julia-repl-send-buffer)
     (,(kbd "C-c C-z")    . julia-repl)
     (,(kbd "<C-return>") . julia-repl-send-line)
-    (,(kbd "C-c C-e")    . julia-repl-edit-region-or-line)
+    (,(kbd "C-c C-e")    . julia-repl-edit)
     (,(kbd "C-c C-d")    . julia-repl-doc)
     (,(kbd "C-c C-w")    . julia-repl-workspace)
+    (,(kbd "C-c m")      . julia-repl-macroexpand)
     ))
 
 (provide 'julia-repl)
