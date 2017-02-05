@@ -58,24 +58,6 @@
   "Hook to run after starting a Julia REPL term buffer."
   :type 'hook)
 
-(defun julia-repl--setup-term-keys ()
-  "Set up keys for the REPL."
-  ;; FIXME global redefinition bad style, check if multi-term is more flexible
-  (cl-flet ((defraw (key string)
-              (define-key term-raw-map key
-                (lambda ()
-                  (interactive)
-                  (term-send-raw-string string))))
-            (defcmd (key command)
-              (define-key term-raw-map key command)))
-    ;; remap for readline (works better)
-    (defraw [up] "\e[A")
-    (defraw [down] "\e[B")
-    (defraw [right] "\e[C")
-    (defraw [left] "\e[D")
-    ;; passed through
-    (defcmd (kbd "M-x") #'execute-extended-command)))
-
 (defun julia-repl--start-inferior ()
   "Start a Julia REPL inferior process, return the buffer. No
 setup is performed. See JULIA-REPL-BUFFER-NAME,
@@ -96,6 +78,7 @@ is not raised."
     (with-current-buffer buf
       (term-char-mode)
       (term-set-escape-char ?\C-x)      ; useful for switching windows
+      (define-key term-raw-map (kbd "M-x") #'execute-extended-command)
       (setq-local term-prompt-regexp "^(julia|shell|help\\?|(\\d+\\|debug ))>")
       (run-hooks 'julia-repl-hook))
     buf))
