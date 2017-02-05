@@ -50,6 +50,10 @@
   "Path for Julia executable."
   :type 'string)
 
+(defcustom julia-repl-switches ""
+  "Command line switches for the Julia executable."
+  :type 'string)
+
 (defcustom julia-repl-hook nil
   "Hook to run after starting a Julia REPL term buffer."
   :type 'hook)
@@ -80,17 +84,21 @@
   "Start a Julia REPL inferior process, return the buffer. No
 setup is performed. See JULIA-REPL-BUFFER-NAME,
 JULIA-REPL-EXECUTABLE, and JULIA-REPL-USE-SCREEN."
-  (cl-flet ((direct-term () ; start julia in term directly
-               (julia-repl--setup-term-keys)
-               (make-term julia-repl-buffer-name julia-repl-executable)))
-    (if julia-repl-use-screen
-        (-if-let (screen-executable (executable-find "screen"))
-            (make-term julia-repl-buffer-name screen-executable nil
-                       julia-repl-executable)
-          (progn
-            (message "could not find screen")
-            (direct-term)))
-      (direct-term))))
+  (let ((switches julia-repl-switches))
+    (when current-prefix-arg
+      (setq switches (read-string "julia switches: " julia-repl-switches)))
+    (cl-flet ((direct-term () ; start julia in term directly
+                           (julia-repl--setup-term-keys)
+                           (make-term julia-repl-buffer-name julia-repl-executable
+                                      nil switches)))
+      (if julia-repl-use-screen
+          (-if-let (screen-executable (executable-find "screen"))
+              (make-term julia-repl-buffer-name screen-executable nil
+                         julia-repl-executable)
+            (progn
+              (message "could not find screen")
+              (direct-term)))
+        (direct-term)))))
 
 (defun julia-repl--start-and-setup ()
   "Start a Julia REPL in a term buffer, return the buffer. Buffer
