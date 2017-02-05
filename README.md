@@ -1,6 +1,6 @@
 # julia-repl: run an inferior Julia REPL in Emacs
 
-This is a minor mode for interacting with a Julia REPL running inside Emacs. The `julia` process is started in an ANSI terminal (`term`), optionally inside `screen` (when available), which allows text formatting and colors, and interaction with the help system and the debugger.
+This is a minor mode for interacting with a Julia REPL running inside Emacs. The `julia` process is started in an ANSI terminal (`term`), inside `screen` (which you have to install), which allows text formatting and colors, and interaction with the help system and the debugger.
 
 It is recommended that you use this minor mode with [julia-mode](https://github.com/JuliaEditorSupport/julia-emacs).
 
@@ -10,7 +10,12 @@ It is recommended that you use this minor mode with [julia-mode](https://github.
 
 **Please make sure you have at least Emacs 25**. The `term` code changed a bit since Emacs 24, and the package does not support it. For example, Ubuntu users can get the latest Emacs snapshot [here](https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa).
 
-Place this in your Emacs initialization files (eg `.emacs`):
+**Install screen**. For example, on Debian/Ubuntu, install the `screen` package:
+```sh
+sudo apt-get update; sudo apt-get install screen
+```
+
+Place this in your **Emacs initialization files** (eg `.emacs`):
 ```lisp
 (add-to-list 'load-path path-to-julia-repl)
 (require 'julia-repl)
@@ -30,6 +35,7 @@ key | action
 `C-c C-e` | invoke `@edit` on region (when applicable) or line
 `C-c C-d` | invoke `@doc` on symbol
 `C-c C-w` | `workspace()`
+`C-c m`   | expand macro
 
 Also, note some keybindings for `term`:
 
@@ -39,12 +45,11 @@ Also, note some keybindings for `term`:
 
 See the help of `term` for more.
 
-You can customize the option `julia-repl-use-screen`. Set it to `nil` (the default) if you want to have the entire history available (`screen` truncates).
+Note that `screen` truncates history.
 
 ## Limitations
 
 - There should be a way to send function definitions without selecting them (ie select around point).
-- When not using `screen`, the current implementation redefines `term-mode-map` globally to make arrow keys work.
 
 ## Comparison to ESS
 
