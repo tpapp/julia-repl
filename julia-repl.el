@@ -42,24 +42,15 @@
 (require 'dash)
 (require 'term)
 
-(when (and (= emacs-major-version 25) (< emacs-minor-version 2))
-  ;; (defun julia-repl-fix-ansi-escapes (proc char)
-  ;;   "Handle additional ansi escapes."
-  ;;   (cond
-  ;;    ;; \E[nG - Cursor Horizontal Absolute, e.g. move cursor to column n
-  ;;    ((eq char ?G)
-  ;;     (let ((col (min term-width (max 0 term-terminal-parameter))))
-  ;;       (term-move-columns (- col (term-current-column)))))
-  ;;    (t)))
-  (advice-add 'term-handle-ansi-escape :before
-              #'(lambda (proc char)
-                  "Handle additional ansi escapes."
-                  (cond
-                   ;; \E[nG - CHA
-                   ((eq char ?G)
-                    (let ((col (min term-width (max 0 term-terminal-parameter))))
-                      (term-move-columns (- col (term-current-column)))))
-                   (t)))))
+(advice-add 'term-handle-ansi-escape :before
+            #'(lambda (proc char)
+                "Handle additional ansi escapes."
+                (cond
+                 ;; \E[nG - CHA
+                 ((eq char ?G)
+                  (let ((col (min term-width (max 0 term-terminal-parameter))))
+                    (term-move-columns (- col (term-current-column)))))
+                 (t))))
 
 (defcustom julia-repl-buffer-name "julia"
   "Buffer name for the Julia REPL. Will be surrounded by *'s"
