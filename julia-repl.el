@@ -35,12 +35,13 @@
 ;; the Julia REPL facilities for interactive features, such readline,
 ;; help, debugging.
 
-;; Package-Requires: ((emacs "25") (dash "2.13.0"))
+;; Package-Requires: ((emacs "25") (dash "2.13.0") (s "1.11.0"))
 
 ;;; Code:
 
 (require 'dash)
 (require 'term)
+(require 's)
 
 (defcustom julia-repl-buffer-name "julia"
   "Buffer name for the Julia REPL. Will be surrounded by *'s"
@@ -67,7 +68,7 @@ JULIA-REPL-EXECUTABLE, and JULIA-REPL-USE-SCREEN."
       (setq switches (split-string
                       (read-string "julia switches: " julia-repl-switches))))
     (-if-let (screen-executable (executable-find "screen"))
-        (apply #'make-term julia-repl-buffer-name screen-executable nil
+        (apply #'make-term julia-repl-buffer-name screen-executable nil "-e^Oo"
                julia-repl-executable switches)
       (error "could not find screen"))))
 
