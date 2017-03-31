@@ -4,6 +4,7 @@
 ;; Author: Tamas Papp <tkpapp@gmail.com>
 ;; Keywords: languages
 ;; Version: 0.0.1
+;; Package-Requires: ((emacs "25"))
 
 ;;; Usage:
 ;; Put the following code in your .emacs, site-load.el, or other relevant file
@@ -35,13 +36,10 @@
 ;; the Julia REPL facilities for interactive features, such readline,
 ;; help, debugging.
 
-;; Package-Requires: ((emacs "25") (dash "2.11.0") (s "1.10.0"))
-
 ;;; Code:
 
-(require 'dash)
 (require 'term)
-(require 's)
+(require 'subr-x)
 
 (advice-add 'term-handle-ansi-escape :before
             #'(lambda (proc char)
@@ -108,7 +106,7 @@ Buffer is not raised."
 
 (defun julia-repl-buffer ()
   "Return the Julia REPL term buffer, creating one if it does not exist."
-  (-if-let (buffer (get-buffer (concat "*" julia-repl-buffer-name "*")))
+  (if-let (buffer (get-buffer (concat "*" julia-repl-buffer-name "*")))
       (if (term-check-proc buffer)
           buffer
         (julia-repl--start-and-setup))
@@ -125,7 +123,7 @@ This should be the standard entry point."
   (let ((buffer (julia-repl-buffer)))
     (display-buffer buffer)
     (with-current-buffer buffer
-      (term-send-raw-string (s-trim string))
+      (term-send-raw-string (string-trim string))
       (term-send-raw-string "\^M"))))
 
 (defun julia-repl-send-line ()
