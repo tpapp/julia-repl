@@ -31,11 +31,11 @@
 ;; WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ;;; Commentary:
-;; Run a julia REPL inside a terminal in Emacs. In contrast to ESS, use
+;; Run a julia REPL inside a terminal in Emacs.  In contrast to ESS, use
 ;; the Julia REPL facilities for interactive features, such readline,
 ;; help, debugging.
 
-;; Package-Requires: ((emacs "25") (dash "2.11.0") (s "1.10.0"))
+;; Package-Requires: ((Emacs "25") (dash "2.11.0") (s "1.10.0"))
 
 ;;; Code:
 
@@ -54,7 +54,7 @@
                  (t))))
 
 (defcustom julia-repl-buffer-name "julia"
-  "Buffer name for the Julia REPL. Will be surrounded by *'s"
+  "Buffer name for the Julia REPL.  Will be surrounded by *'s."
   :type 'string)
 
 (defcustom julia-repl-executable "julia"
@@ -70,8 +70,8 @@
   :type 'hook)
 
 (defun julia-repl--start-inferior ()
-  "Start a Julia REPL inferior process, return the buffer. No
-setup is performed. See JULIA-REPL-BUFFER-NAME,
+  "Start a Julia REPL inferior process, return the buffer.
+No setup is performed.  See JULIA-REPL-BUFFER-NAME,
 JULIA-REPL-EXECUTABLE, and JULIA-REPL-USE-SCREEN."
   (let ((switches julia-repl-switches))
     (when current-prefix-arg
@@ -80,8 +80,8 @@ JULIA-REPL-EXECUTABLE, and JULIA-REPL-USE-SCREEN."
     (apply #'make-term julia-repl-buffer-name julia-repl-executable nil switches)))
 
 (defun julia-repl--start-and-setup ()
-  "Start a Julia REPL in a term buffer, return the buffer. Buffer
-is not raised."
+  "Start a Julia REPL in a term buffer, return the buffer.
+Buffer is not raised."
   (let ((buf (julia-repl--start-inferior)))
     (with-current-buffer buf
       (term-char-mode)
@@ -91,7 +91,7 @@ is not raised."
       (run-hooks 'julia-repl-hook))
     buf))
 
-(defun julia-repl-buffer (&optional switch)
+(defun julia-repl-buffer ()
   "Return the Julia REPL term buffer, creating one if it does not exist."
   (-if-let (buffer (get-buffer (concat "*" julia-repl-buffer-name "*")))
       (if (term-check-proc buffer)
@@ -100,8 +100,8 @@ is not raised."
     (julia-repl--start-and-setup)))
 
 (defun julia-repl ()
-  "Raise the Julia REPL term buffer, creating one if it does not
-exist. This should be the standard entry point."
+  "Raise the Julia REPL term buffer, creating one if it does not exist.
+This should be the standard entry point."
   (interactive)
   (switch-to-buffer-other-window (julia-repl-buffer)))
 
@@ -120,11 +120,9 @@ exist. This should be the standard entry point."
   (forward-line))
 
 (defun julia-repl-send-region-or-line (&optional prefix suffix)
-  "When there is an active region, send that to the Julia REPL
-term buffer, otherwise the current line.
+  "Send active region (if any) or current line to the Julia REPL term buffer.
 
-When PREFIX and SUFFIX are given, they are concatenated before
-and after."
+When PREFIX and SUFFIX are given, they are concatenated before and after."
   (interactive)
   (cl-flet ((-send-string (string)
                           (julia-repl--send-string
@@ -149,8 +147,7 @@ and after."
   (julia-repl-send-region-or-line "macroexpand(quote " " end)"))
 
 (defun julia-repl-send-buffer ()
-  "Send the contents of the current buffer to the Julia REPL term
-buffer."
+  "Send the contents of the current buffer to the Julia REPL term buffer."
   (interactive)
   (julia-repl--send-string
    (buffer-substring-no-properties (point-min) (point-max))))
