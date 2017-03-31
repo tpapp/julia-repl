@@ -35,7 +35,7 @@
 ;; the Julia REPL facilities for interactive features, such readline,
 ;; help, debugging.
 
-;; Package-Requires: ((emacs "25") (dash "2.13.0") (s "1.11.0"))
+;; Package-Requires: ((emacs "25") (dash "2.11.0") (s "1.10.0"))
 
 ;;; Code:
 
