@@ -77,6 +77,12 @@
   :type 'hook
   :group 'julia-repl)
 
+(defcustom julia-repl-capture-Mx t
+  "When non-nil, M-x is passed through.
+Note that this affects all buffers using the ANSI-TERM map."
+  :type 'boolean
+  :group 'julia-repl)
+
 (defun julia-repl--start-inferior ()
   "Start a Julia REPL inferior process, return the buffer.
 No setup is performed.  See JULIA-REPL-BUFFER-NAME,
@@ -94,7 +100,8 @@ Buffer is not raised."
     (with-current-buffer buf
       (term-char-mode)
       (term-set-escape-char ?\C-x)      ; useful for switching windows
-      (define-key term-raw-map (kbd "M-x") #'execute-extended-command)
+      (when julia-repl-capture-Mx
+        (define-key term-raw-map (kbd "M-x") #'execute-extended-command))
       (setq-local term-prompt-regexp "^(julia|shell|help\\?|(\\d+\\|debug ))>")
       (run-hooks 'julia-repl-hook))
     buf))
