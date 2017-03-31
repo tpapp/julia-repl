@@ -53,21 +53,29 @@
                     (term-move-columns (- col (term-current-column)))))
                  (t))))
 
+(defgroup julia-repl nil
+  "A minor mode for a Julia REPL"
+  :group 'julia)
+
 (defcustom julia-repl-buffer-name "julia"
   "Buffer name for the Julia REPL.  Will be surrounded by *'s."
-  :type 'string)
+  :type 'string
+  :group 'julia-repl)
 
 (defcustom julia-repl-executable "julia"
   "Path for Julia executable."
-  :type 'string)
+  :type 'string
+  :group 'julia-repl)
 
 (defcustom julia-repl-switches nil
   "Command line switches for the Julia executable."
-  :type 'list)
+  :type 'list
+  :group 'julia-repl)
 
 (defcustom julia-repl-hook nil
   "Hook to run after starting a Julia REPL term buffer."
-  :type 'hook)
+  :type 'hook
+  :group 'julia-repl)
 
 (defun julia-repl--start-inferior ()
   "Start a Julia REPL inferior process, return the buffer.
