@@ -41,16 +41,6 @@
 (require 'term)
 (require 'subr-x)
 
-(advice-add 'term-handle-ansi-escape :before
-            #'(lambda (proc char)
-                "Handle additional ansi escapes."
-                (cond
-                 ;; \E[nG - CHA
-                 ((eq char ?G)
-                  (let ((col (min term-width (max 0 term-terminal-parameter))))
-                    (term-move-columns (- col (term-current-column)))))
-                 (t))))
-
 (defgroup julia-repl nil
   "A minor mode for a Julia REPL"
   :group 'julia)
