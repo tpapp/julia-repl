@@ -74,7 +74,7 @@ Note that this affects all buffers using the ANSI-TERM map."
 (defun julia-repl--start-inferior ()
   "Start a Julia REPL inferior process, return the buffer.
 No setup is performed.  See JULIA-REPL-BUFFER-NAME,
-JULIA-REPL-EXECUTABLE, and JULIA-REPL-USE-SCREEN."
+JULIA-REPL-EXECUTABLE."
   (let ((switches julia-repl-switches))
     (when current-prefix-arg
       (setq switches (split-string

@@ -1,6 +1,6 @@
 # julia-repl: run an inferior Julia REPL in Emacs
 
-This is a minor mode for interacting with a Julia REPL running inside Emacs. The `julia` process is started in an ANSI terminal (`term`), inside `screen` (which you have to install), which allows text formatting and colors, and interaction with the help system and the debugger.
+This is a minor mode for interacting with a Julia REPL running inside Emacs. The `julia` process is started in an ANSI terminal (`term`), which allows text formatting and colors, and interaction with the help system and the debugger.
 
 It is recommended that you use this minor mode with [julia-mode](https://github.com/JuliaEditorSupport/julia-emacs).
 
@@ -10,16 +10,15 @@ It is recommended that you use this minor mode with [julia-mode](https://github.
 
 **Please make sure you have at least Emacs 25**. The `term` code changed a bit since Emacs 24, and the package does not support it. For example, Ubuntu users can get the latest Emacs snapshot [here](https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa).
 
-**Install screen**. For example, on Debian/Ubuntu, install the `screen` package:
-```sh
-sudo apt-get update; sudo apt-get install screen
-```
-
 Place this in your **Emacs initialization files** (eg `.emacs`):
-```lisp
+```emacs-lisp
 (add-to-list 'load-path path-to-julia-repl)
 (require 'julia-repl)
 (add-hook 'julia-mode-hook 'julia-repl-mode) ;; always use minor mode
+```
+If you want to use a Julia executable other than `julia` in your path, set
+```emacs-lisp
+(setq julia-repl-executable "/path/to/julia")
 ```
 
 ## Usage
@@ -44,8 +43,6 @@ Also, note some keybindings for `term`:
 3. for scrolling, use `S-<prior>` and `S-<next>`.
 
 See the help of `term` for more.
-
-Note that `screen` truncates history.
 
 ## Limitations
 
