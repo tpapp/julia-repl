@@ -176,7 +176,7 @@ When PREFIX and SUFFIX are given, they are concatenated before and after."
     (,(kbd "C-c C-e")    . julia-repl-edit)
     (,(kbd "C-c C-d")    . julia-repl-doc)
     (,(kbd "C-c C-w")    . julia-repl-workspace)
-    (,(kbd "C-c m")      . julia-repl-macroexpand)))
+    (,(kbd "C-c C-m")    . julia-repl-macroexpand)))
 
 (provide 'julia-repl)
 ;;; julia-repl.el ends here
