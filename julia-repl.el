@@ -114,7 +114,8 @@ This should be the standard entry point."
     (display-buffer buffer)
     (with-current-buffer buffer
       (term-send-raw-string (string-trim string))
-      (term-send-raw-string "\^M"))))
+      (unless current-prefix-arg
+        (term-send-raw-string "\^M")))))
 
 (defun julia-repl-send-line ()
   "Send the current line to the Julia REPL term buffer."

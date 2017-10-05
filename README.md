@@ -36,6 +36,8 @@ key | action
 `C-c C-w` | `workspace()`
 `C-c m`   | expand macro
 
+All actions that send something to the REPL terminate with a newline, triggering evaluation. If you want to avoid sending a newline (eg maybe because you want to edit an expression), use prefix arguments (`C--` or `C-u`, currently both have the same effect).
+
 Also, note some keybindings for `term`:
 
 1. `C-x C-j` switches to *line mode*, where you can kill/yank, move around the buffer, use standard Emacs keybindings,
