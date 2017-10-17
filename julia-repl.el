@@ -102,6 +102,7 @@ Buffer is not raised."
         (julia-repl--start-and-setup))
     (julia-repl--start-and-setup)))
 
+;;;###autoload
 (defun julia-repl ()
   "Raise the Julia REPL term buffer, creating one if it does not exist.
 This should be the standard entry point."
