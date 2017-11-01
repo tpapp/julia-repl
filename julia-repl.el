@@ -50,11 +50,6 @@
   :type 'string
   :group 'julia-repl)
 
-(defcustom julia-repl-executable "julia"
-  "Path for Julia executable."
-  :type 'string
-  :group 'julia-repl)
-
 (defcustom julia-repl-switches nil
   "Command line switches for the Julia executable."
   :type 'list
@@ -71,15 +66,55 @@ Note that this affects all buffers using the ANSI-TERM map."
   :type 'boolean
   :group 'julia-repl)
 
+(defcustom julia-repl-compilation-mode t
+  "When non-nil, highlight error locations using COMPILATION-SHELL-MINOR-MODE."
+  :type 'boolean
+  :group 'julia-repl)
+
+(defvar julia-compilation-regexp-alist
+  '(;; matches "while loading /tmp/Foo.jl, in expression starting on line 2"
+    (julia-load-error . ("while loading \\([^ ><()\t\n,'\";:]+\\), in expression starting on line \\([0-9]+\\)" 1 2))
+    ;; matches "at /tmp/Foo.jl:2"
+    (julia-runtime-error . ("at \\([^ ><()\t\n,'\";:]+\\):\\([0-9]+\\)" 1 2)))
+  "Specifications for highlighting error locations (using compilation-")
+
+(defvar julia-repl--executable "julia"
+  "Path for Julia executable. Do not set this directly, use
+JULIA-REPL-SET-EXECUTABLE.")
+
+(cl-defun julia-repl--capture-basedir (&optional (executable julia-repl--executable))
+  "Obtain the Julia base directory by querying the Julia  EXECUTABLE. When NIL,
+an error was encountered."
+  (let* ((prefix "OK")
+         (expr (concat "\"print(\\\"" prefix
+                       "\\\" * normpath(joinpath(JULIA_HOME, Base.DATAROOTDIR, "
+                       "\\\"julia\\\", \\\"base\\\")))\""))
+         (switches " --history-file=no --startup-file=no -qe ")
+         (maybe-basedir (shell-command-to-string (concat executable switches expr))))
+    (when (string-prefix-p prefix maybe-basedir)
+      (substring maybe-basedir (length prefix)))))
+
+(defvar julia-repl--basedir (julia-repl--capture-basedir)
+  "Cached base directory for Julia executable.")
+
+(defun julia-repl-set-executable (executable &optional basedir)
+  "Set the julia executable and optionally the basedir. When the
+  latter is not given, it is obtained by running the executable and saved."
+  (setq julia-repl--executable executable)
+  (setq julia-repl--basedir
+        (if basedir
+            basedir
+          (julia-repl--capture-basedir))))
+
 (defun julia-repl--start-inferior ()
   "Start a Julia REPL inferior process, return the buffer.
 No setup is performed.  See JULIA-REPL-BUFFER-NAME,
-JULIA-REPL-EXECUTABLE."
+JULIA-REPL-SET-EXECUTABLE."
   (let ((switches julia-repl-switches))
     (when current-prefix-arg
       (setq switches (split-string
                       (read-string "julia switches: " julia-repl-switches))))
-    (apply #'make-term julia-repl-buffer-name julia-repl-executable nil switches)))
+    (apply #'make-term julia-repl-buffer-name julia-repl--executable nil switches)))
 
 (defun julia-repl--start-and-setup ()
   "Start a Julia REPL in a term buffer, return the buffer.
@@ -90,6 +125,13 @@ Buffer is not raised."
       (term-set-escape-char ?\C-x)      ; useful for switching windows
       (when julia-repl-capture-Mx
         (define-key term-raw-map (kbd "M-x") #'execute-extended-command))
+      (when julia-repl-compilation-mode
+        (setq-local compilation-error-regexp-alist-alist
+                    julia-compilation-regexp-alist)
+        (setq-local compilation-error-regexp-alist
+                    (mapcar #'car compilation-error-regexp-alist-alist))
+        (setq-local compilation-search-path (list julia-repl--basedir))
+        (compilation-shell-minor-mode 1))
       (setq-local term-prompt-regexp "^(julia|shell|help\\?|(\\d+\\|debug ))>")
       (run-hooks 'julia-repl-hook))
     buf))
