@@ -18,7 +18,7 @@ Place this in your **Emacs initialization files** (eg `.emacs`):
 ```
 If you want to use a Julia executable other than `julia` in your path, set
 ```emacs-lisp
-(setq julia-repl-executable "/path/to/julia")
+(julia-repl-set-executable "/path/to/julia")
 ```
 
 ## Usage
