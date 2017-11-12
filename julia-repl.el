@@ -151,29 +151,38 @@ This should be the standard entry point."
   (interactive)
   (switch-to-buffer-other-window (julia-repl-buffer)))
 
-(defun julia-repl--send-string (string)
-  "Send STRING to the Julia REPL term buffer."
+(defun julia-repl--send-string (string &optional no-newline)
+  "Send STRING to the Julia REPL term buffer. A closing newline
+is sent according to NO-NEWLINE:
+  1. NIL sends the newline,
+  2. 'PREFIX sends it according to CURRENT-PREFIX-ARG,
+  3. otherwise no newline."
   (let ((buffer (julia-repl-buffer)))
     (display-buffer buffer)
     (with-current-buffer buffer
       (term-send-raw-string (string-trim string))
-      (unless current-prefix-arg
+      (when (eq no-newline 'prefix)
+        (setq no-newline current-prefix-arg))
+      (unless no-newline
         (term-send-raw-string "\^M")))))
 
 (defun julia-repl-send-line ()
-  "Send the current line to the Julia REPL term buffer."
+  "Send the current line to the Julia REPL term buffer. Closed
+with a newline, unless used with a prefix argument."
   (interactive)
-  (julia-repl--send-string (thing-at-point 'line t))
+  (julia-repl--send-string (thing-at-point 'line t) 'prefix)
   (forward-line))
 
 (defun julia-repl-send-region-or-line (&optional prefix suffix)
-  "Send active region (if any) or current line to the Julia REPL term buffer.
+  "Send active region (if any) or current line to the Julia REPL term buffer;
+closed with a newline, unless used with a prefix argument.
 
-When PREFIX and SUFFIX are given, they are concatenated before and after."
+When PREFIX and SUFFIX are given, they are concatenated before
+and after."
   (interactive)
   (cl-flet ((-send-string (string)
                           (julia-repl--send-string
-                           (concat prefix string suffix))))
+                           (concat prefix string suffix) 'prefix)))
     (if (use-region-p)
         (progn
           (-send-string (buffer-substring-no-properties
@@ -193,11 +202,23 @@ When PREFIX and SUFFIX are given, they are concatenated before and after."
   (interactive)
   (julia-repl-send-region-or-line "macroexpand(quote " " end)"))
 
-(defun julia-repl-send-buffer ()
-  "Send the contents of the current buffer to the Julia REPL term buffer."
-  (interactive)
-  (julia-repl--send-string
-   (buffer-substring-no-properties (point-min) (point-max))))
+(defun julia-repl-send-buffer (arg)
+  "Send the contents of the current buffer to the Julia REPL term
+buffer. Use `include' by default if the buffer is associated with
+a file, and is not modified (ie has been saved) or saved after
+prompting. Otherwise send the contents directly; you can force
+this with a prefix argument."
+  (interactive "P")
+  (let ((use-file (and (not arg) buffer-file-truename)))
+    (when (and use-file (buffer-modified-p))
+      (if (y-or-n-p "Buffer modified, save?")
+          (save-buffer)
+        (setq use-file nil)))
+    (if use-file
+        (julia-repl--send-string
+         (concat "include(\"" buffer-file-truename "\")"))
+      (julia-repl--send-string
+       (buffer-substring-no-properties (point-min) (point-max))))))
 
 (defun julia-repl-doc ()
   "Documentation for symbol at point."
