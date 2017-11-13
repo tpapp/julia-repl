@@ -25,17 +25,17 @@ If you want to use a Julia executable other than `julia` in your path, set
 
 `M-x julia-repl`, or `C-c C-z` from a buffer in which the `julia-repl` minor mode is active starts a new inferior Julia process. The keys below can be used to interact with this process.
 
-key | action
-----|-------
-`C-c C-c` | send region (when applicable) or line to REPL
-`C-c C-b` | send whole buffer to REPL (using include)
-`C-u C-c C-b` | send whole buffer to REPL (directly)
-`C-c C-z` | raise the REPL or create a new one
-`C-RET` | send line to REPL (without [bracketed paste](https://cirw.in/blog/bracketed-paste))
-`C-c C-e` | invoke `@edit` on region (when applicable) or line
-`C-c C-d` | invoke `@doc` on symbol
-`C-c C-w` | `workspace()`
-`C-c C-m`   | expand macro
+| key           | action                                                                              |
+|---------------|-------------------------------------------------------------------------------------|
+| `C-c C-c`     | send region (when applicable) or line to REPL                                       |
+| `C-c C-b`     | send whole buffer to REPL (using include)                                           |
+| `C-u C-c C-b` | send whole buffer to REPL (directly)                                                |
+| `C-c C-z`     | raise the REPL or create a new one                                                  |
+| `C-RET`       | send line to REPL (without [bracketed paste](https://cirw.in/blog/bracketed-paste)) |
+| `C-c C-e`     | invoke `@edit` on region (when applicable) or line                                  |
+| `C-c C-d`     | invoke `@doc` on symbol                                                             |
+| `C-c C-w`     | `workspace()`                                                                       |
+| `C-c C-m`     | expand macro                                                                        |
 
 All actions that send something to the REPL terminate with a newline, triggering evaluation.
 
