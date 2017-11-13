@@ -160,11 +160,13 @@ is sent according to NO-NEWLINE:
   (let ((buffer (julia-repl-buffer)))
     (display-buffer buffer)
     (with-current-buffer buffer
+      (term-send-raw-string "\e[200~")  ; bracketed paste start
       (term-send-raw-string (string-trim string))
       (when (eq no-newline 'prefix)
         (setq no-newline current-prefix-arg))
       (unless no-newline
-        (term-send-raw-string "\^M")))))
+        (term-send-raw-string "\^M"))
+      (term-send-raw-string "\e[201~")))) ; bracketed paste stop
 
 (defun julia-repl-send-line ()
   "Send the current line to the Julia REPL term buffer. Closed
