@@ -151,28 +151,38 @@ This should be the standard entry point."
   (interactive)
   (switch-to-buffer-other-window (julia-repl-buffer)))
 
-(defun julia-repl--send-string (string &optional no-newline)
-  "Send STRING to the Julia REPL term buffer. A closing newline
-is sent according to NO-NEWLINE:
+(defun julia-repl--send-string (string &optional no-newline no-bracketed-paste)
+  "Send STRING to the Julia REPL term buffer.
+
+A closing newline is sent according to NO-NEWLINE:
+
   1. NIL sends the newline,
   2. 'PREFIX sends it according to CURRENT-PREFIX-ARG,
-  3. otherwise no newline."
+  3. otherwise no newline.
+
+Unless NO-BRACKED-PASTE, bracketed paste control sequences are used."
   (let ((buffer (julia-repl-buffer)))
     (display-buffer buffer)
     (with-current-buffer buffer
-      (term-send-raw-string "\e[200~")  ; bracketed paste start
+      (unless no-bracketed-paste        ; bracketed paste start
+        (term-send-raw-string "\e[200~"))
       (term-send-raw-string (string-trim string))
       (when (eq no-newline 'prefix)
         (setq no-newline current-prefix-arg))
       (unless no-newline
         (term-send-raw-string "\^M"))
-      (term-send-raw-string "\e[201~")))) ; bracketed paste stop
+      (unless no-bracketed-paste        ; bracketed paste stop
+        (term-send-raw-string "\e[201~")))))
 
 (defun julia-repl-send-line ()
   "Send the current line to the Julia REPL term buffer. Closed
-with a newline, unless used with a prefix argument."
+with a newline, unless used with a prefix argument.
+
+This is the only REPL interaction function that does not use
+bracketed paste. Unless you want this specifically, you should
+probably be using `julia-repl-send-region-or-line'."
   (interactive)
-  (julia-repl--send-string (thing-at-point 'line t) 'prefix)
+  (julia-repl--send-string (thing-at-point 'line t) 'prefix t)
   (forward-line))
 
 (defun julia-repl-send-region-or-line (&optional prefix suffix)

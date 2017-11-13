@@ -31,7 +31,7 @@ key | action
 `C-c C-b` | send whole buffer to REPL (using include)
 `C-u C-c C-b` | send whole buffer to REPL (directly)
 `C-c C-z` | raise the REPL or create a new one
-`C-RET` | send line to REPL
+`C-RET` | send line to REPL (without [bracketed paste](https://cirw.in/blog/bracketed-paste))
 `C-c C-e` | invoke `@edit` on region (when applicable) or line
 `C-c C-d` | invoke `@doc` on symbol
 `C-c C-w` | `workspace()`
