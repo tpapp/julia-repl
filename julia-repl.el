@@ -221,15 +221,14 @@ a file, and is not modified (ie has been saved) or saved after
 prompting. Otherwise send the contents directly; you can force
 this with a prefix argument."
   (interactive "P")
-  (let ((use-file (and (not arg) buffer-file-truename)))
-    (when (and use-file (buffer-modified-p))
+  (let* ((file (and (not arg) buffer-file-name)))
+    (when (and file (buffer-modified-p))
       (if (y-or-n-p "Buffer modified, save?")
           (save-buffer)
-        (setq use-file nil)))
-    (if use-file
-        (julia-repl--send-string
-         (concat "include(\"" buffer-file-truename "\")"))
-      (julia-repl--send-string
+        (setq file nil)))
+    (julia-repl--send-string
+     (if file
+         (concat "include(\"" file "\")")
        (buffer-substring-no-properties (point-min) (point-max))))))
 
 (defun julia-repl-doc ()
