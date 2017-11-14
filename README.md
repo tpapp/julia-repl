@@ -51,7 +51,7 @@ See the help of `term` for more.
 
 ## Limitations
 
-- There should be a way to send function definitions without selecting them (ie select around point).
+- See the [issues](https://github.com/tpapp/julia-repl/issues).
 
 ## Comparison to ESS
 
