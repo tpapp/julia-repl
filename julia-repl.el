@@ -133,6 +133,7 @@ Buffer is not raised."
         (setq-local compilation-search-path (list julia-repl--basedir))
         (compilation-shell-minor-mode 1))
       (setq-local term-prompt-regexp "^(julia|shell|help\\?|(\\d+\\|debug ))>")
+      (setq-local term-suppress-hard-newline t) ; reflow text
       (run-hooks 'julia-repl-hook))
     buf))
 
