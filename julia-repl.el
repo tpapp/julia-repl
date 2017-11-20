@@ -124,7 +124,7 @@ Buffer is not raised."
       (term-char-mode)
       (term-set-escape-char ?\C-x)      ; useful for switching windows
       (when julia-repl-capture-Mx
-        (define-key term-raw-map (kbd "M-x") #'execute-extended-command))
+        (define-key term-raw-map (kbd "M-x") (global-key-binding (kbd "M-x"))))
       (when julia-repl-compilation-mode
         (setq-local compilation-error-regexp-alist-alist
                     julia-compilation-regexp-alist)
