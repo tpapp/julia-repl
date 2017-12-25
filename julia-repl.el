@@ -4,7 +4,7 @@
 ;; Author: Tamas Papp <tkpapp@gmail.com>
 ;; Keywords: languages
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "25"))
+;; Package-Requires: ((emacs "25") (s "1.10"))
 
 ;;; Usage:
 ;; Put the following code in your .emacs, site-load.el, or other relevant file
@@ -39,14 +39,19 @@
 ;;; Code:
 
 (require 'term)
+(require 's)
 (require 'subr-x)
+
+
+;; customizations
 
 (defgroup julia-repl nil
   "A minor mode for a Julia REPL"
   :group 'julia)
 
-(defcustom julia-repl-buffer-name "julia"
-  "Buffer name for the Julia REPL.  Will be surrounded by *'s."
+(defcustom julia-repl-default-buffer-name "*julia*"
+  "Default buffer name for the Julia REPL. Should start and end
+with *'s, these are appended when necessary."
   :type 'string
   :group 'julia-repl)
 
@@ -71,6 +76,9 @@ Note that this affects all buffers using the ANSI-TERM map."
   :type 'boolean
   :group 'julia-repl)
 
+
+;; global variables
+
 (defvar julia-compilation-regexp-alist
   '(;; matches "while loading /tmp/Foo.jl, in expression starting on line 2"
     (julia-load-error . ("while loading \\([^ ><()\t\n,'\";:]+\\), in expression starting on line \\([0-9]+\\)" 1 2))
@@ -78,49 +86,76 @@ Note that this affects all buffers using the ANSI-TERM map."
     (julia-runtime-error . ("at \\([^ ><()\t\n,'\";:]+\\):\\([0-9]+\\)" 1 2)))
   "Specifications for highlighting error locations (using compilation-")
 
-(defvar julia-repl--executable "julia"
-  "Path for Julia executable. Do not set this directly, use
-JULIA-REPL-SET-EXECUTABLE.")
+(defvar julia-repl-executable-records
+  '((default "julia"))
+  "List of Julia executables, of the form
 
-(cl-defun julia-repl--capture-basedir (&optional (executable julia-repl--executable))
-  "Obtain the Julia base directory by querying the Julia  EXECUTABLE. When NIL,
+  (KEY EXECUTABLE :BASEDIR BASEDIR)
+
+A missing :BASEDIR will be completed automatically when first used.
+
+Should contain the entry with the key DEFAULT")
+
+(defvar-local julia-repl-buffer-name julia-repl-default-buffer-name
+  "Name for the Julia REPL buffer associated with a source code buffer.")
+
+(defvar-local julia-repl-executable 'default
+  "Key for the executable associated with the buffer. Looked up
+in JULIA-REPL-EXECUTABLE-RECORDS.")
+
+
+;; REPL buffer creation and setup
+
+(defun julia-repl--strip-earmuffs (string)
+  "Strip *'s from the beginning and end of a string if present."
+  (s-chop-prefix "*" (s-chop-suffix "*" string)))
+
+(defun julia-repl--add-earmuffs (string)
+  "Add earmuffs (*'s) to a string."
+  (s-concat "*" string "*"))
+
+(defun julia-repl--ensure-earmuffs (string)
+  "Ensure that a string starts and ends with earmuffs (*'s)."
+  (julia-repl--add-earmuffs (julia-repl--strip-earmuffs string)))
+
+(cl-defun julia-repl--capture-basedir (executable)
+  "Obtain the Julia base directory by querying the Julia EXECUTABLE. When NIL,
 an error was encountered."
   (let* ((prefix "OK")
          (expr (concat "\"print(\\\"" prefix
                        "\\\" * normpath(joinpath(JULIA_HOME, Base.DATAROOTDIR, "
                        "\\\"julia\\\", \\\"base\\\")))\""))
          (switches " --history-file=no --startup-file=no -qe ")
-         (maybe-basedir (shell-command-to-string (concat executable switches expr))))
+         (maybe-basedir (shell-command-to-string
+                         (concat executable switches expr))))
     (when (string-prefix-p prefix maybe-basedir)
       (substring maybe-basedir (length prefix)))))
 
-(defvar julia-repl--basedir (julia-repl--capture-basedir)
-  "Cached base directory for Julia executable.")
+(defun julia-repl--executable-record-complete! (executable-record)
+  "Completed EXECUTABLE-RECORD by querying and appending missing
+information if necessary."
+  (unless (plist-member executable-record :basedir)
+    (let* ((executable-path (second executable-record))
+           (basedir (julia-repl--capture-basedir executable-path)))
+      (if basedir
+          (nconc executable-record `(:basedir ,basedir))
+        (warn "could not capture basedir for Julia executable %s"
+              executable-path))))
+  executable-record)
 
-(defun julia-repl-set-executable (executable &optional basedir)
-  "Set the julia executable and optionally the basedir. When the
-  latter is not given, it is obtained by running the executable and saved."
-  (setq julia-repl--executable executable)
-  (setq julia-repl--basedir
-        (if basedir
-            basedir
-          (julia-repl--capture-basedir))))
-
-(defun julia-repl--start-inferior ()
-  "Start a Julia REPL inferior process, return the buffer.
-No setup is performed.  See JULIA-REPL-BUFFER-NAME,
-JULIA-REPL-SET-EXECUTABLE."
+(defun julia-repl--start-inferior (buffer-name executable-path)
+  "Start a Julia REPL inferior process using EXECUTABLE in a buffer named
+BUFER-NAME, return the buffer. No setup is performed."
   (let ((switches julia-repl-switches))
     (when current-prefix-arg
       (setq switches (split-string
                       (read-string "julia switches: " julia-repl-switches))))
-    (apply #'make-term julia-repl-buffer-name julia-repl--executable nil switches)))
+    (apply #'make-term (julia-repl--strip-earmuffs buffer-name)
+           executable-path nil switches)))
 
-(defun julia-repl--start-and-setup ()
-  "Start a Julia REPL in a term buffer, return the buffer.
-Buffer is not raised."
-  (let ((buf (julia-repl--start-inferior)))
-    (with-current-buffer buf
+(defun julia-repl--setup (buffer basedir)
+  "Setup a newly created REPL buffer. BASEDIR is used for the base directory."
+  (with-current-buffer buffer
       (term-char-mode)
       (term-set-escape-char ?\C-x)      ; useful for switching windows
       (when julia-repl-capture-Mx
@@ -130,20 +165,55 @@ Buffer is not raised."
                     julia-compilation-regexp-alist)
         (setq-local compilation-error-regexp-alist
                     (mapcar #'car compilation-error-regexp-alist-alist))
-        (setq-local compilation-search-path (list julia-repl--basedir))
+        (when basedir
+          (setq-local compilation-search-path (list basedir)))
         (compilation-shell-minor-mode 1))
       (setq-local term-prompt-regexp "^(julia|shell|help\\?|(\\d+\\|debug ))>")
-      (setq-local term-suppress-hard-newline t) ; reflow text
-      (run-hooks 'julia-repl-hook))
-    buf))
+      (setq-local term-suppress-hard-newline t)  ; reflow text
+      (make-local-variable 'julia-repl-inferior) ; marks buffers
+      (run-hooks 'julia-repl-hook)))
+
+(defun julia-repl--start-and-setup (buffer-name executable-record)
+  "Using information from EXECUTABLE-RECORD, start a Julia REPL in a term buffer,
+return the buffer. Buffer is not raised."
+  (julia-repl--executable-record-complete! executable-record)
+  (let* ((executable-path (second executable-record))
+         (basedir (plist-get executable-record :basedir))
+         (buffer (julia-repl--start-inferior buffer-name executable-path)))
+    (julia-repl--setup buffer basedir)
+    buffer))
+
+(defun julia-repl--buffer-name ()
+  "Return the Julia REPL buffer name for the current buffer."
+  (julia-repl--ensure-earmuffs julia-repl-buffer-name))
+
+(defun julia-repl--live-buffer ()
+  "If there is a running REPL associated with the current buffer,
+return its buffer, otherwise NIL."
+  (if-let ((buffer (get-buffer (julia-repl--buffer-name))))
+      (when (term-check-proc buffer)
+        buffer)))
+
+(defun julia-repl--executable-record ()
+  "Return the executable record for the current JULIA-REPL-EXECUTABLE."
+  (let ((executable-record (assq julia-repl-executable
+                                 julia-repl-executable-records)))
+    (unless executable-record
+      (error "Could not find %s in JULIA-REPL-EXECUTABLE-RECORDS"
+             julia-repl-executable))
+    executable-record))
+
+(defun julia-repl--start ()
+  "Start a REPL and return the buffer. Uses JULIA-REPL-EXECUTABLE
+and JULIA-REPL-BUFFER-NAME."
+  (julia-repl--start-and-setup (julia-repl--buffer-name)
+                               (julia-repl--executable-record)))
 
 (defun julia-repl-buffer ()
   "Return the Julia REPL term buffer, creating one if it does not exist."
-  (if-let (buffer (get-buffer (concat "*" julia-repl-buffer-name "*")))
-      (if (term-check-proc buffer)
-          buffer
-        (julia-repl--start-and-setup))
-    (julia-repl--start-and-setup)))
+  (if-let ((buffer (julia-repl--live-buffer)))
+      buffer
+    (julia-repl--start)))
 
 ;;;###autoload
 (defun julia-repl ()
@@ -151,6 +221,33 @@ Buffer is not raised."
 This should be the standard entry point."
   (interactive)
   (switch-to-buffer-other-window (julia-repl-buffer)))
+
+(defun julia-repl-prompt-buffer-name ()
+  "Prompt for a Julia REPL inferior buffer name."
+  (interactive)
+  (let ((buffer-name (read-buffer "julia-repl buffer name: "
+                                  (julia-repl--buffer-name)
+                                  nil
+                                  (lambda (arg)
+                                    (let ((buffer-name (if (consp arg)
+                                                           (car arg)
+                                                         arg)))
+                                      (local-variable-p 'julia-repl-inferior
+                                                        (get-buffer
+                                                         buffer-name)))))))
+    (setq-local julia-repl-buffer-name
+                (julia-repl--ensure-earmuffs buffer-name))))
+
+(defun julia-repl-prompt-executable ()
+  "Prompt for the Julia REPL executable. See JULIA-REPL-EXECUTABLE-RECORDS."
+  (interactive)
+  (setq-local julia-repl-executable
+              (intern
+               (completing-read "julia-repl executable: "
+                                julia-repl-executable-records nil t nil))))
+
+
+;; sending to the REPL
 
 (defun julia-repl--send-string (string &optional no-newline no-bracketed-paste)
   "Send STRING to the Julia REPL term buffer.
@@ -242,6 +339,9 @@ this with a prefix argument."
   (interactive)
   (julia-repl--send-string "workspace()"))
 
+
+;; keybindings
+
 ;;;###autoload
 (define-minor-mode julia-repl-mode
   "Minor mode for interacting with a Julia REPL running inside a term."
@@ -253,7 +353,9 @@ this with a prefix argument."
     (,(kbd "C-c C-e")    . julia-repl-edit)
     (,(kbd "C-c C-d")    . julia-repl-doc)
     (,(kbd "C-c C-w")    . julia-repl-workspace)
-    (,(kbd "C-c C-m")    . julia-repl-macroexpand)))
+    (,(kbd "C-c C-m")    . julia-repl-macroexpand)
+    (,(kbd "C-c C-s")    . julia-repl-prompt-buffer-name)
+    (,(kbd "C-c C-v")    . julia-repl-prompt-executable)))
 
 (provide 'julia-repl)
 ;;; julia-repl.el ends here
