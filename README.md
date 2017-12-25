@@ -34,7 +34,6 @@ If you want to use a Julia executable other than `julia` in your path, set
 | `C-RET`       | send line to REPL (without bracketed paste)        |
 | `C-c C-e`     | invoke `@edit` on region (when applicable) or line |
 | `C-c C-d`     | invoke `@doc` on symbol                            |
-| `C-c C-w`     | `workspace()`                                      |
 | `C-c C-m`     | expand macro                                       |
 
 All actions that send something to the REPL terminate with a **newline**, triggering evaluation. If you want to avoid sending a newline (eg maybe because you want to edit an expression), use prefix arguments (`C--` or `C-u`, currently both have the same effect). This of course does not apply to `C-c C-b`.

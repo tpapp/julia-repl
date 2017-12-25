@@ -334,11 +334,6 @@ this with a prefix argument."
   (interactive)
   (julia-repl--send-string (concat "@doc " (thing-at-point 'symbol t))))
 
-(defun julia-repl-workspace ()
-  "Call workspace()."
-  (interactive)
-  (julia-repl--send-string "workspace()"))
-
 
 ;; keybindings
 
@@ -352,7 +347,6 @@ this with a prefix argument."
     (,(kbd "<C-return>") . julia-repl-send-line)
     (,(kbd "C-c C-e")    . julia-repl-edit)
     (,(kbd "C-c C-d")    . julia-repl-doc)
-    (,(kbd "C-c C-w")    . julia-repl-workspace)
     (,(kbd "C-c C-m")    . julia-repl-macroexpand)
     (,(kbd "C-c C-s")    . julia-repl-prompt-buffer-name)
     (,(kbd "C-c C-v")    . julia-repl-prompt-executable)))
