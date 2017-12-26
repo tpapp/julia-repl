@@ -150,7 +150,7 @@ to a buffer name. See ‘julia-repl--add-earmuffs’."
   "Add earmuffs (*'s) to BUFFER-NAME.
 
 This matches the buffer name created by ‘make-term’."
-  (concat "*" string "*"))
+  (concat "*" buffer-name "*"))
 
 (cl-defun julia-repl--capture-basedir (executable-path)
   "Attempt to obtain the Julia base directory by querying the Julia executable.
