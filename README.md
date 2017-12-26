@@ -46,7 +46,7 @@ The minor mode allows the user to select a particular Julia executable and optio
 
 ### Julia executables
 
-Set `julia-repl-executable-records` to a list of executables. For example,
+Set `julia-repl-executable-records` to a list of keys and executables. For example,
 ```elisp
 (setq julia-repl-executable-records
       '((default "julia")
