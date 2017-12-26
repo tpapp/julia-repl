@@ -40,7 +40,37 @@ All actions that send something to the REPL terminate with a **newline**, trigge
 
 All commands send code using [bracketed paste](https://cirw.in/blog/bracketed-paste). When Julia is waiting for input, control characters like `^[[200~` may show up in your buffer, this is innocuous. If you input takes a long time to evaluate, you can step through it line-by-line with `C-RET`.
 
-Also, note some keybindings for `term`:
+## Buffer-local inferior REPL and Julia executable
+
+The minor mode allows the user to select a particular Julia executable and optionally a different inferior buffer for each source code buffer. This allows running two versions (eg stable and master) of Julia simultaneously, and/or running multiple inferior REPLs of the same Julia version.
+
+### Julia executables
+
+Set `julia-repl-executable-records` to a list of executables. For example,
+```elisp
+(setq julia-repl-executable-records
+      '((default "julia")
+        (master (expanduser "~/src/julia-git/julia"))))
+```
+provides two executables. Make sure that there is one entry with the key of the global value of `julia-repl-executable`, which defaults to `'default`.
+
+Use `C-c C-s` to select one of these (`julia-repl-prompt-executable`). You can also set the value of `julia-repl-executable` directly to a key in the `julia-repl-executable-records`, eg using [file variables](https://www.gnu.org/software/emacs/manual/html_node/emacs/Specifying-File-Variables.html), but make sure you select a correct value.
+
+The name of the inferior buffer will reflect your choice: the default is `*julia*` (indicator omitted), while the `master` executable would map to `*julia-master*`, and so on.
+
+### Executable suffix
+
+You can also set a *suffix* for the inferior buffer, if you want multiple ones in parallel. This can be a number, which will show up as `<number>`, or a symbol, which appears as `-symbol`.
+
+It is recommended that you use `C-c C-s`, (`julia-repl-prompt-inferior-buffer-name-suffix`), which prompts for a string by default. Prefix arguments modify it like this:
+
+- numerical prefixes select that integer: eg `C-3 C-c C-s` set the suffix to `3`.
+
+- the negative prefix picks the next unused integer: eg `C- C-c C-s` sets the suffix to `4` if `1`, `2`, `3` are in use.
+
+## Interacting with `term`
+
+Note some keybindings for `term`:
 
 1. `C-x C-j` switches to *line mode*, where you can kill/yank, move around the buffer, use standard Emacs keybindings,
 2. `C-c C-k` switches back to *char mode*,
