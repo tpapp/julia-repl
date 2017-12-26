@@ -65,10 +65,11 @@ See `julia-repl--inferior-buffer-name'."
   :type 'hook
   :group 'julia-repl)
 
-(defcustom julia-repl-capture-Mx t
-  "When non-nil, M-x is passed through.
+(defcustom julia-repl-captures (list (kbd "M-x"))
+  "List of key sequences that are passed through (the global binding is used).
+
 Note that this affects all buffers using the ANSI-TERM map."
-  :type 'boolean
+  :type '(repeat key-sequence)
   :group 'julia-repl)
 
 (defcustom julia-repl-compilation-mode t
@@ -180,6 +181,12 @@ Return the inferior buffer. No setup is performed."
                       (read-string "julia switches: " julia-repl-switches))))
     (apply #'make-term inferior-buffer-name executable-path nil switches)))
 
+(defun julia-repl--setup-captures ()
+  "Set up captured keys."
+  (mapc (lambda (k)
+          (define-key term-raw-map k (global-key-binding k)))
+        julia-repl-captures))
+
 (defun julia-repl--setup (inferior-buffer basedir)
   "Setup a newly created inferior REPL buffer.
 
@@ -187,8 +194,7 @@ BASEDIR is used for the base directory."
   (with-current-buffer inferior-buffer
       (term-char-mode)
       (term-set-escape-char ?\C-x)      ; useful for switching windows
-      (when julia-repl-capture-Mx
-        (define-key term-raw-map (kbd "M-x") (global-key-binding (kbd "M-x"))))
+      (julia-repl--setup-captures)
       (when julia-repl-compilation-mode
         (setq-local compilation-error-regexp-alist-alist
                     julia-compilation-regexp-alist)
