@@ -16,10 +16,7 @@ Place this in your **Emacs initialization files** (eg `.emacs`):
 (require 'julia-repl)
 (add-hook 'julia-mode-hook 'julia-repl-mode) ;; always use minor mode
 ```
-If you want to use a Julia executable other than `julia` in your path, set
-```emacs-lisp
-(julia-repl-set-executable "/path/to/julia")
-```
+If you want to use a Julia executable other than `julia` in your path, see [below](#julia-executables).
 
 ## Usage
 
