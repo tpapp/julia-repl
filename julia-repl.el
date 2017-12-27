@@ -117,7 +117,11 @@ name.")
 (defvar-local julia-repl-switches nil
   "Command line switches for the Julia executable.
 
-Valid values are NIL or a string.")
+Valid values are NIL or a string. These take effect the next time
+a new Julia process is started.
+
+Note that the variable is buffer local, use ‘setq-default’ for
+global defaults.")
 
 
 ;; REPL buffer creation and setup
