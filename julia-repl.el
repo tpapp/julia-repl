@@ -99,7 +99,7 @@ Entries have the form
 
 A missing :BASEDIR will be completed automatically when first used.
 
-Should contain an entry with the key ‘julia-repl-executable’,
+Should contain an entry with the key ‘julia-repl-executable-key’,
 which is used as the default.")
 
 (defvar-local julia-repl-inferior-buffer-name-suffix nil
@@ -127,7 +127,7 @@ name.")
   "Name for a Julia REPL inferior buffer, with the given suffix.
 
 The name is a string, constructed from JULIA-REPL-INFERIOR-NAME-BASE,
-JULIA-REPL-EXECUTABLE (used only when different from its global
+JULIA-REPL-EXECUTABLE-KEY (used only when different from its global
 default), and the SUFFIX, without *'s.
 
 An integer SUFFIX is formatted as “<SUFFIX>”, while a symbol is
@@ -135,9 +135,9 @@ added as “-SUFFIX.”
 
 Note that ‘make-term’ surrounds this string by *'s when converted
 to a buffer name. See ‘julia-repl--add-earmuffs’."
-  (let* ((default? (eq julia-repl-executable
-                       (default-value 'julia-repl-executable)))
-         (middle (if default? "" (format "-%s" julia-repl-executable)))
+  (let* ((default? (eq julia-repl-executable-key
+                       (default-value 'julia-repl-executable-key)))
+         (middle (if default? "" (format "-%s" julia-repl-executable-key)))
          (last (cond
                 ((null suffix) "")
                 ((integerp suffix) (format "<%d>" suffix))
@@ -242,20 +242,23 @@ Return the buffer.  Buffer is not raised."
         inferior-buffer)))
 
 (defun julia-repl--executable-record ()
-  "Return the executable record for the current ‘julia-repl-executable’."
-  (let ((executable-record (assq julia-repl-executable
+  "Return the executable record for the current ‘julia-repl-executable-key’."
+  (let ((executable-record (assq julia-repl-executable-key
                                  julia-repl-executable-records)))
     (unless executable-record
       (error "Could not find %s in JULIA-REPL-EXECUTABLE-RECORDS"
-             julia-repl-executable))
+             julia-repl-executable-key))
     executable-record))
 
 (defun julia-repl--start ()
   "Start a REPL and return the buffer.
 
-Uses ‘julia-repl-executable’ and ‘julia-repl-inferior-buffer-name’."
+Uses ‘julia-repl-executable-key’ and ‘julia-repl-inferior-buffer-name’."
   (julia-repl--start-and-setup (julia-repl--inferior-buffer-name)
                                (julia-repl--executable-record)))
+
+
+;; prompting for exe
 
 (defun julia-repl-inferior-buffer ()
   "Return the Julia REPL inferior buffer, creating one if it does not exist."
@@ -342,8 +345,8 @@ Both of these happen without prompting."
   (let ((key (intern
               (completing-read "julia-repl executable: "
                                julia-repl-executable-records nil t nil))))
-    (setq-local julia-repl-executable key)
-    (message "julia-repl-executable set to %s" key)))
+    (setq-local julia-repl-executable-key key)
+    (message "julia-repl-executable-key set to %s" key)))
 
 
 ;; sending to the REPL

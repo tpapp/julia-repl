@@ -49,9 +49,9 @@ Set `julia-repl-executable-records` to a list of keys and executables. For examp
       '((default "julia")
         (master (expanduser "~/src/julia-git/julia"))))
 ```
-provides two executables. Make sure that there is one entry with the key of the global value of `julia-repl-executable`, which defaults to `'default`.
+provides two executables. Make sure that there is one entry with the key of the global value of `julia-repl-executable-key`, which defaults to `'default`.
 
-Use `C-c C-s` to select one of these (`julia-repl-prompt-executable`). You can also set the value of `julia-repl-executable` directly to a key in the `julia-repl-executable-records`, eg using [file variables](https://www.gnu.org/software/emacs/manual/html_node/emacs/Specifying-File-Variables.html), but make sure you select a correct value.
+Use `C-c C-s` to select one of these (`julia-repl-prompt-executable`). You can also set the value of `julia-repl-executable-key` directly to a key in the `julia-repl-executable-records`, eg using [file variables](https://www.gnu.org/software/emacs/manual/html_node/emacs/Specifying-File-Variables.html), but make sure you select a correct value.
 
 The name of the inferior buffer will reflect your choice: the default is `*julia*` (indicator omitted), while the `master` executable would map to `*julia-master*`, and so on.
 
