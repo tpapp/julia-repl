@@ -87,7 +87,7 @@ If you are using the same settings for a specific file, consider using [file var
 # End:
 ```
 
-then the next time you open a REPL, it will have the name *julia-master-tests*, and have 4 worker processes.
+then the next time you open a REPL, it will have the name `*julia-master-tests*`, and 4 worker processes.
 
 ## Interacting with `term`
 
