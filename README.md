@@ -37,6 +37,8 @@ All actions that send something to the REPL terminate with a **newline**, trigge
 
 All commands send code using [bracketed paste](https://cirw.in/blog/bracketed-paste). When Julia is waiting for input, control characters like `^[[200~` may show up in your buffer, this is innocuous. If you input takes a long time to evaluate, you can step through it line-by-line with `C-RET`.
 
+When called with a prefix (eg `C-u` or `C--`), `C-c C-z` (`julia-repl`) will prompt for the executable key and always create a new REPL. This is useful for temporary REPL's, eg trying out something without affecting an existing process. Users can also bind `julia-repl-prompt-new` for this functionality.
+
 ## Buffer-local inferior REPL and Julia executable
 
 The minor mode allows the user to select a particular Julia executable and optionally a different inferior buffer for each source code buffer. This allows running two versions (eg stable and master) of Julia simultaneously, and/or running multiple inferior REPLs of the same Julia version.
