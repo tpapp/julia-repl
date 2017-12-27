@@ -61,11 +61,33 @@ The name of the inferior buffer will reflect your choice: the default is `*julia
 
 You can also set a *suffix* for the inferior buffer, if you want multiple ones in parallel. This can be a number, which will show up as `<number>`, or a symbol, which appears as `-symbol`.
 
-It is recommended that you use `C-c C-s`, (`julia-repl-prompt-inferior-buffer-name-suffix`), which prompts for a string by default. Prefix arguments modify it like this:
+It is recommended that you use `C-c C-s` (`julia-repl-prompt-inferior-buffer-name-suffix`), which prompts for a string by default. Prefix arguments modify it like this:
 
 - numerical prefixes select that integer: eg `C-3 C-c C-s` set the suffix to `3`.
 
 - the negative prefix picks the next unused integer: eg `C- C-c C-s` sets the suffix to `4` if `1`, `2`, `3` are in use.
+
+### Switches
+
+Switches to the `julia` process can be provided in the variable `julia-repl-switches`, which is also buffer-local. Eg
+
+```elisp
+(setq-default julia-repl-switches "-p 4")
+```
+
+### File local variables
+
+If you are using the same settings for a specific file, consider using [file variables](https://www.gnu.org/software/emacs/manual/html_node/emacs/Specifying-File-Variables.html). For example, if you use `add-file-local-variable` to create a block at the end of the Julia source file similar to
+
+```julia
+# Local Variables:
+# julia-repl-executable-key: master
+# julia-repl-inferior-buffer-name-suffix: tests
+# julia-repl-switches: "-p 4"
+# End:
+```
+
+then the next time you open a REPL, it will have the name *julia-master-tests*, and have 4 worker processes.
 
 ## Interacting with `term`
 
