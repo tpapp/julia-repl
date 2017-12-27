@@ -101,7 +101,7 @@ See the help of `term` for more.
 
 ## Limitations
 
-- See the [issues](https://github.com/tpapp/julia-repl/issues).
+See the [issues](https://github.com/tpapp/julia-repl/issues).
 
 ## Comparison to ESS
 
