@@ -193,7 +193,7 @@ prevent further attempts."
               executable-path)))))
 
 (defun julia-repl--split-switches ()
-  "Return a list of switches."
+  "Return a list of switches, to be passed on to ‘make-term’."
   (when julia-repl-switches
     (split-string julia-repl-switches)))
 
@@ -267,7 +267,7 @@ raised if not found."
         inferior-buffer)))
 
 (defun julia-repl--start (executable-key suffix)
-  "Start a REPL and return the buffer with the given key and suffix."
+  "Start a REPL and return the buffer with the given EXECUTABLE-KEY and SUFFIX."
   (julia-repl--start-and-setup
    (julia-repl--inferior-buffer-name executable-key suffix)
    (julia-repl--executable-record executable-key)))
@@ -292,9 +292,10 @@ Matches the EXECUTABLE-KEY, without the suffix."
 (defun julia-repl--read-inferior-buffer-name-suffix (executable-key)
   "Completing read of a inferior buffer name suffix for the Julia REPL.
 
-Returns a symbol, from interning the string that is read.
+Returns a symbol, from interning the string that is read. The
+completions offered are specific to the EXECUTABLE-KEY.
 
-See ‘julia-repl--inferior-buffer-name’ for how it is used."
+See ‘julia-repl--inferior-buffer-name’."
   (let* ((matching-inferior-buffers
           (julia-repl--matching-inferior-buffers executable-key))
          (suffix-buffer-alist (mapcar
@@ -331,16 +332,16 @@ buffer),
 Both of these happen without prompting."
   (interactive "P")
   (message "arg is %s of type %s" arg (type-of arg))
-  (let ((executable-key julia-repl-executable-key)
-        (suffix (cond
-                 ((null arg)
-                  (julia-repl--read-inferior-buffer-name-suffix executable-key))
-                 ((eq arg '-)
-                  (julia-repl--unused-inferior-buffer-name-index executable-key))
-                 ((integerp arg)
-                  arg)
-                 ((listp arg)
-                  (first arg)))))
+  (let* ((executable-key julia-repl-executable-key)
+         (suffix (cond
+                  ((null arg)
+                   (julia-repl--read-inferior-buffer-name-suffix executable-key))
+                  ((eq arg '-)
+                   (julia-repl--unused-inferior-buffer-name-index executable-key))
+                  ((integerp arg)
+                   arg)
+                  ((listp arg)
+                   (first arg)))))
     (setq-local julia-repl-inferior-buffer-name-suffix suffix)
     (message "julia-repl-inferior-buffer-name-suffix set to %s" suffix)))
 
@@ -384,7 +385,7 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
 
 This is the standard entry point for using this package.
 
-When called with a prefix argument, it will prompt for the
+When called with a prefix argument ARG, it will prompt for the
 executable key and always create a new inferior buffer, see
 ‘julia-repl-prompt-new’."
   (interactive "P")
