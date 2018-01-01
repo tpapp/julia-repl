@@ -79,7 +79,9 @@ Note that this affects all buffers using the ANSI-TERM map."
   '(;; matches "while loading /tmp/Foo.jl, in expression starting on line 2"
     (julia-load-error . ("while loading \\([^ ><()\t\n,'\";:]+\\), in expression starting on line \\([0-9]+\\)" 1 2))
     ;; matches "at /tmp/Foo.jl:2"
-    (julia-runtime-error . ("at \\([^ ><()\t\n,'\";:]+\\):\\([0-9]+\\)" 1 2)))
+    (julia-runtime-error . ("at \\([^ ><()\t\n,'\";:]+\\):\\([0-9]+\\)" 1 2))
+    ;; matches "around /tmp/Foo.jl:2"
+    (julia-loc-around . ("around \\([^ ><()\t\n,'\";:]+\\):\\([0-9]+\\)" 1 2)))
   "Specifications for highlighting error locations.
 
 Uses function ‘compilation-shell-minor-mode’.")
