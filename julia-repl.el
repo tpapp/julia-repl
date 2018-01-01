@@ -231,6 +231,9 @@ BASEDIR is used for the base directory."
         (compilation-shell-minor-mode 1))
       (setq-local term-prompt-regexp "^(julia|shell|help\\?|(\\d+\\|debug ))>")
       (setq-local term-suppress-hard-newline t)  ; reflow text
+      (setq-local term-scroll-show-maximum-output t)
+      ;; do I need this?
+      ;; (setq-local term-scroll-to-bottom-on-output t)
       (run-hooks 'julia-repl-hook)))
 
 (defun julia-repl--start-and-setup (inferior-buffer-name executable-record)
