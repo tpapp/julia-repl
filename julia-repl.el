@@ -210,33 +210,54 @@ Return the inferior buffer.  No setup is performed."
          (julia-repl--split-switches)))
 
 (defun julia-repl--setup-captures ()
-  "Set up captured keys."
+  "Set up captured keys which are captured from term.
+
+Note that this affects term globally."
   (mapc (lambda (k)
           (define-key term-raw-map k (global-key-binding k)))
         julia-repl-captures))
+
+(defun julia-repl--setup-compilation-mode (inferior-buffer basedir)
+  "Setup compilation mode for the the current buffer in INFERIOR-BUFFER.
+
+BASEDIR is used for resolving relative paths."
+  (with-current-buffer inferior-buffer
+    (setq-local compilation-error-regexp-alist-alist
+                julia-compilation-regexp-alist)
+    (setq-local compilation-error-regexp-alist
+                (mapcar #'car compilation-error-regexp-alist-alist))
+    (when basedir
+      (setq-local compilation-search-path (list basedir)))
+    (compilation-shell-minor-mode 1)))
+
+(defun julia-repl--run-hooks (inferior-buffer)
+  "Run the hooks in ‘julia-repl-hook’ in INFERIOR-BUFFER."
+  (with-current-buffer inferior-buffer
+    (run-hooks 'julia-repl-hook)))
+
+(defun julia-repl--setup-term (inferior-buffer)
+  "Set up customizations for term mode in INFERIOR-BUFFER.
+
+Note that not all effects are buffer local."
+  (with-current-buffer inferior-buffer
+      (term-char-mode)
+      (term-set-escape-char ?\C-x)      ; useful for switching windows
+      (setq-local term-prompt-regexp "^(julia|shell|help\\?|(\\d+\\|debug ))>")
+      (setq-local term-suppress-hard-newline t)  ; reflow text
+      (setq-local term-scroll-show-maximum-output t)
+      ;; do I need this?
+      (setq-local term-scroll-to-bottom-on-output t)
+      ))
 
 (defun julia-repl--setup (inferior-buffer basedir)
   "Setup a newly created INFERIOR-BUFFER.
 
 BASEDIR is used for the base directory."
-  (with-current-buffer inferior-buffer
-      (term-char-mode)
-      (term-set-escape-char ?\C-x)      ; useful for switching windows
-      (julia-repl--setup-captures)
-      (when julia-repl-compilation-mode
-        (setq-local compilation-error-regexp-alist-alist
-                    julia-compilation-regexp-alist)
-        (setq-local compilation-error-regexp-alist
-                    (mapcar #'car compilation-error-regexp-alist-alist))
-        (when basedir
-          (setq-local compilation-search-path (list basedir)))
-        (compilation-shell-minor-mode 1))
-      (setq-local term-prompt-regexp "^(julia|shell|help\\?|(\\d+\\|debug ))>")
-      (setq-local term-suppress-hard-newline t)  ; reflow text
-      (setq-local term-scroll-show-maximum-output t)
-      ;; do I need this?
-      ;; (setq-local term-scroll-to-bottom-on-output t)
-      (run-hooks 'julia-repl-hook)))
+  (when julia-repl-compilation-mode
+    (julia-repl--setup-compilation-mode inferior-buffer basedir))
+  (julia-repl--setup-captures)
+  (julia-repl--setup-term inferior-buffer)
+  (julia-repl--run-hooks inferior-buffer))
 
 (defun julia-repl--start-and-setup (inferior-buffer-name executable-record)
   "Using start a Julia REPL in INFERIOR-BUFFER-NAME using EXECUTABLE-RECORD.
