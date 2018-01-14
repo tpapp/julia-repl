@@ -81,7 +81,11 @@ Note that this affects all buffers using the ANSI-TERM map."
     ;; matches "at /tmp/Foo.jl:2"
     (julia-runtime-error . ("at \\([^ ><()\t\n,'\";:]+\\):\\([0-9]+\\)" 1 2))
     ;; matches "around /tmp/Foo.jl:2"
-    (julia-loc-around . ("around \\([^ ><()\t\n,'\";:]+\\):\\([0-9]+\\)" 1 2)))
+    (julia-loc-around . ("around \\([^ ><()\t\n,'\";:]+\\):\\([0-9]+\\)" 1 2))
+    ;; matches "WARNING: omitting /tmp/Foo.jl due to parsing error near line 2"
+    ;; Revise.jl
+    (julia-warn-revise . ("WARNING: omitting \\([^ ><()\t\n,'\";:]+\\) due to parsing error near line \\([0-9]+\\)" 1 2))
+    )
   "Specifications for highlighting error locations.
 
 Uses function ‘compilation-shell-minor-mode’.")
