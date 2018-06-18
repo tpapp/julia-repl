@@ -214,9 +214,9 @@ Return the inferior buffer.  No setup is performed."
          (julia-repl--split-switches)))
 
 (defun julia-repl--setup-captures ()
-  "Set up captured keys which are captured from term.
+  "Set up captured keys which are captured from ‘term’.
 
-Note that this affects term globally."
+Note that this affects ‘term’ globally."
   (mapc (lambda (k)
           (define-key term-raw-map k (global-key-binding k)))
         julia-repl-captures))
