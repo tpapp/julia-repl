@@ -375,15 +375,14 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
    (completing-read "julia-repl executable: "
                     julia-repl-executable-records nil t nil)))
 
-(defun julia-repl-prompt-set-executable-key (arg)
+(defun julia-repl-prompt-set-executable-key ()
   "Prompt and save the key of the Julia REPL executable.
 
 Valid keys are the first items in ‘julia-repl-executable-records’."
+  (interactive)
   (let ((key (julia-repl-prompt-executable-key)))
     (setq julia-repl-executable-key key)
-    (message "julia-repl-executable-key (%s) set to %s"
-             (propertize (if arg "buffer local" "global default")
-                         'face 'font-lock-warning-face)
+    (message "julia-repl-executable-key set to %s"
              (propertize (symbol-name key) 'face 'font-lock-constant-face))))
 
 
