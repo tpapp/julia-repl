@@ -63,7 +63,7 @@ See ‘julia-repl--inferior-buffer-name’."
 (defcustom julia-repl-captures (list (kbd "M-x"))
   "List of key sequences that are passed through (the global binding is used).
 
-Note that this affects all buffers using the ANSI-TERM map."
+Note that this affects all buffers using the ‘ansi-term’ map."
   :type '(repeat key-sequence)
   :group 'julia-repl)
 
@@ -100,27 +100,29 @@ Entries have the form
 
 A missing :BASEDIR will be completed automatically when first used.
 
-Should contain an entry with the key ‘julia-repl-executable-key’,
-which is used as the default.")
+This is used for key lookup for ‘julia-repl-executable-key’. The
+first entry is the default.")
 
-(defvar-local julia-repl-inferior-buffer-name-suffix nil
+(defun julia-repl--default-executable-key ()
+  "Return the default executable key."
+  (caar julia-repl-executable-records))
+
+(defvar julia-repl-inferior-buffer-name-suffix nil
   "Name for the Julia REPL buffer associated with a source code buffer.
 
 Can be a symbol (with NIL being the default) or a number. See
 ‘julia-repl--inferior-buffer-name’ for details on how it is
 used to generate a buffer name.")
 
-(defvar-local julia-repl-executable-key 'default
+(defvar julia-repl-executable-key (caar julia-repl-executable-records)
   "Key for the executable associated with the buffer.
 
 Looked up in ‘julia-repl-executable-records’.
 
-Unless a value different from the global value is set, this is
-not included in the inferior buffer name. See
-‘julia-repl--inferior-buffer-name’ for how it is used to generate a buffer
-name.")
+See ‘julia-repl--inferior-buffer-name’ for how it is used to
+generate a buffer name.")
 
-(defvar-local julia-repl-switches nil
+(defvar julia-repl-switches nil
   "Command line switches for the Julia executable.
 
 Valid values are NIL or a string. These take effect the next time
@@ -132,25 +134,17 @@ global defaults.")
 
 ;; REPL buffer creation and setup
 
-(defun julia-repl--default-executable-key? (executable-key)
-  "Test if EXECUTABLE-KEY is the global default of ‘julia-repl-executable-key’."
-  (eq executable-key (default-value 'julia-repl-executable-key)))
-
-(defun julia-repl--inferior-buffer-name (executable-key suffix)
+(cl-defun julia-repl--inferior-buffer-name
+    (&optional (executable-key julia-repl-executable-key)
+               (suffix julia-repl-inferior-buffer-name-suffix))
   "Name for a Julia REPL inferior buffer.
 
-The name is a string, constructed from
-JULIA-REPL-INFERIOR-NAME-BASE, EXECUTABLE-KEY (used only when
-different from the global defaulto of
-‘julia-repl-executable-key’), and the SUFFIX.
+The name is a string, constructed from JULIA-REPL-INFERIOR-NAME-BASE and EXECUTABLE-KEY (used only when different from the global defaulto of ‘julia-repl-executable-key’), and the SUFFIX.
 
-An integer SUFFIX is formatted as “<SUFFIX>”, while a symbol is
-added as “-SUFFIX.”
+An integer SUFFIX is formatted as “<SUFFIX>”, while a symbol is added as “-SUFFIX.”
 
-Note that ‘make-term’ surrounds this string by *'s when converted
-to a buffer name. See ‘julia-repl--add-earmuffs’."
-  (let* ((default? )
-         (middle (if (julia-repl--default-executable-key? executable-key)
+Note that ‘make-term’ surrounds this string by *'s when converted to a buffer name. See ‘julia-repl--add-earmuffs’."
+  (let* ((middle (if (eq executable-key (julia-repl--default-executable-key))
                      ""
                    (format "-%s" executable-key)))
          (last (cond
@@ -290,9 +284,7 @@ raised if not found."
   "Return the inferior buffer if it has a running REPL, otherwise NIL."
   (if-let ((inferior-buffer
             (get-buffer (julia-repl--add-earmuffs
-                         (julia-repl--inferior-buffer-name
-                          julia-repl-executable-key
-                          julia-repl-inferior-buffer-name-suffix)))))
+                         (julia-repl--inferior-buffer-name)))))
       (when (term-check-proc inferior-buffer)
         inferior-buffer)))
 
@@ -372,7 +364,7 @@ Both of these happen without prompting."
                    arg)
                   ((listp arg)
                    (first arg)))))
-    (setq-local julia-repl-inferior-buffer-name-suffix suffix)
+    (setq julia-repl-inferior-buffer-name-suffix suffix)
     (message "julia-repl-inferior-buffer-name-suffix set to %s" suffix)))
 
 (defun julia-repl-prompt-executable-key ()
@@ -384,16 +376,11 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
                     julia-repl-executable-records nil t nil)))
 
 (defun julia-repl-prompt-set-executable-key (arg)
-  "Prompt and save the key of the Julia REPL executable for the current buffer.
-
-When the prefix argument is used, the default (global) value is set.
+  "Prompt and save the key of the Julia REPL executable.
 
 Valid keys are the first items in ‘julia-repl-executable-records’."
-  (interactive "P")
   (let ((key (julia-repl-prompt-executable-key)))
-    (if arg
-        (setq-default julia-repl-executable-key key)
-      (setq-local julia-repl-executable-key key))
+    (setq julia-repl-executable-key key)
     (message "julia-repl-executable-key (%s) set to %s"
              (propertize (if arg "buffer local" "global default")
                          'face 'font-lock-warning-face)
@@ -409,27 +396,13 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
     (julia-repl--start julia-repl-executable-key
                        julia-repl-inferior-buffer-name-suffix)))
 
-(defun julia-repl-prompt-new ()
-  "Prompt for the executable key and create a new Julia REPL inferior buffer."
-  (interactive)
-  (let* ((executable-key (julia-repl-prompt-executable-key))
-         (suffix (julia-repl--unused-inferior-buffer-name-index executable-key)))
-    (julia-repl--start executable-key suffix)))
-
 ;;;###autoload
-(defun julia-repl (arg)
+(defun julia-repl ()
   "Raise the Julia REPL inferior buffer, creating one if it does not exist.
 
-This is the standard entry point for using this package.
-
-When called with a prefix argument ARG, it will prompt for the
-executable key and always create a new inferior buffer, see
-‘julia-repl-prompt-new’."
-  (interactive "P")
-  (switch-to-buffer-other-window
-   (if arg
-       (julia-repl-prompt-new)
-     (julia-repl-inferior-buffer))))
+This is the standard entry point for using this package."
+  (interactive)
+  (switch-to-buffer-other-window (julia-repl-inferior-buffer)))
 
 
 ;; sending to the REPL
