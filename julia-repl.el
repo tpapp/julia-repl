@@ -105,7 +105,9 @@ first entry is the default.")
 
 (defun julia-repl--default-executable-key ()
   "Return the default executable key."
-  (caar julia-repl-executable-records))
+  (let ((key (caar julia-repl-executable-records)))
+    (assert key "Could not find any key in JULIA-REPL-EXECUTABLE-RECORDS.")
+    key))
 
 (defvar julia-repl-inferior-buffer-name-suffix nil
   "Name for the Julia REPL buffer associated with a source code buffer.
@@ -114,32 +116,34 @@ Can be a symbol (with NIL being the default) or a number. See
 ‘julia-repl--inferior-buffer-name’ for details on how it is
 used to generate a buffer name.")
 
-(defvar julia-repl-executable-key (caar julia-repl-executable-records)
+(defvar julia-repl-executable-key nil
   "Key for the executable associated with the buffer.
 
-Looked up in ‘julia-repl-executable-records’.
+Looked up in ‘julia-repl-executable-records’. When ‘nil’, the
+first value is used.
 
 See ‘julia-repl--inferior-buffer-name’ for how it is used to
 generate a buffer name.")
+
+(defun julia-repl--get-executable-key ()
+  "Return the executable key, picking the first one if it was not set."
+  (or julia-repl-executable-key (julia-repl--default-executable-key)))
 
 (defvar julia-repl-switches nil
   "Command line switches for the Julia executable.
 
 Valid values are NIL or a string. These take effect the next time
-a new Julia process is started.
-
-Note that the variable is buffer local, use ‘setq-default’ for
-global defaults.")
+a new Julia process is started.")
 
 
 ;; REPL buffer creation and setup
 
 (cl-defun julia-repl--inferior-buffer-name
-    (&optional (executable-key julia-repl-executable-key)
+    (&optional (executable-key (julia-repl--get-executable-key))
                (suffix julia-repl-inferior-buffer-name-suffix))
   "Name for a Julia REPL inferior buffer.
 
-The name is a string, constructed from JULIA-REPL-INFERIOR-NAME-BASE and EXECUTABLE-KEY (used only when different from the global defaulto of ‘julia-repl-executable-key’), and the SUFFIX.
+The name is a string, constructed from JULIA-REPL-INFERIOR-NAME-BASE and EXECUTABLE-KEY (used only when different from the global default), and the SUFFIX.
 
 An integer SUFFIX is formatted as “<SUFFIX>”, while a symbol is added as “-SUFFIX.”
 
@@ -354,7 +358,7 @@ buffer),
 Both of these happen without prompting."
   (interactive "P")
   (message "arg is %s of type %s" arg (type-of arg))
-  (let* ((executable-key julia-repl-executable-key)
+  (let* ((executable-key (julia-repl--get-executable-key))
          (suffix (cond
                   ((null arg)
                    (julia-repl--read-inferior-buffer-name-suffix executable-key))
@@ -392,7 +396,7 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
   "Return the Julia REPL inferior buffer, creating one if it does not exist."
   (if-let ((inferior-buffer (julia-repl--live-buffer)))
       inferior-buffer
-    (julia-repl--start julia-repl-executable-key
+    (julia-repl--start (julia-repl--get-executable-key)
                        julia-repl-inferior-buffer-name-suffix)))
 
 ;;;###autoload
