@@ -502,8 +502,12 @@ this with a prefix argument ARG."
   (interactive)
   (julia-repl--send-string (concat "@doc " (thing-at-point 'symbol t))))
 
-
-;; keybindings
+(defun julia-repl-cd ()
+  "Change directory to the directory of the current buffer (if applicable)."
+  (interactive)
+  (if-let ((filename (buffer-file-name)))
+      (julia-repl--send-string (concat "cd(\"" (file-name-directory filename) "\")"))
+    (warn "buffer not associated with a file")))
 
 ;;;###autoload
 (define-minor-mode julia-repl-mode
@@ -517,7 +521,11 @@ this with a prefix argument ARG."
     (,(kbd "C-c C-d")    . julia-repl-doc)
     (,(kbd "C-c C-m")    . julia-repl-macroexpand)
     (,(kbd "C-c C-s")    . julia-repl-prompt-set-inferior-buffer-name-suffix)
-    (,(kbd "C-c C-v")    . julia-repl-prompt-set-executable-key)))
+    (,(kbd "C-c C-v")    . julia-repl-prompt-set-executable-key)
+    (,(kbd "C-c C-p")    . julia-repl-cd))
+  (setq-local default-directory
+              (when-let ((filename (buffer-file-name)))
+                (setq-local default-directory (file-name-directory filename)))))
 
 (provide 'julia-repl)
 ;;; julia-repl.el ends here
