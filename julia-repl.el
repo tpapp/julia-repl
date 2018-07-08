@@ -331,7 +331,7 @@ See ‘julia-repl--inferior-buffer-name’."
                                         buffer)
                                        buffer))
                                matching-inferior-buffers))
-         (suffix (completing-read "julia-repl inferior buffer name suffix: "
+         (suffix (completing-read "julia-repl inferior buffer name suffix (nil): "
                                   suffix-buffer-alist)))
     (intern suffix)))
 
@@ -357,7 +357,6 @@ buffer),
 
 Both of these happen without prompting."
   (interactive "P")
-  (message "arg is %s of type %s" arg (type-of arg))
   (let* ((executable-key (julia-repl--get-executable-key))
          (suffix (cond
                   ((null arg)
