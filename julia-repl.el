@@ -370,6 +370,13 @@ Both of these happen without prompting."
     (setq julia-repl-inferior-buffer-name-suffix suffix)
     (message "julia-repl-inferior-buffer-name-suffix set to %s" suffix)))
 
+(defun julia-repl-prompt-switches ()
+  "Read and set the switches for the inferior process."
+  (interactive)
+  (let ((switches (read-string "switches for the julia process: ")))
+    (message "julia-repl-switches set to \"%s\"" switches)
+    (setq julia-repl-switches switches)))
+
 (defun julia-repl-prompt-executable-key ()
   "Prompt for the key of the Julia REPL executable.
 
