@@ -40,6 +40,14 @@ All commands send code using [bracketed paste](https://cirw.in/blog/bracketed-pa
 
 When called with a prefix (eg `C-u` or `C--`), `C-c C-z` (`julia-repl`) will prompt for the executable key and always create a new REPL. This is useful for temporary REPL's, eg trying out something without affecting an existing process. Users can also bind `julia-repl-prompt-new` for this functionality.
 
+## Environment variables
+
+You can set environment variables directly from your `init.el` in Emacs, eg
+
+```emacs-lisp
+(setenv "JULIA_NUM_THREADS" "4")
+```
+
 ## Buffer-local inferior REPL and Julia executable
 
 The minor mode allows the user to select a particular Julia executable and optionally a different inferior buffer for each source code buffer. This allows running two versions (eg stable and master) of Julia simultaneously, and/or running multiple inferior REPLs of the same Julia version.
@@ -54,7 +62,7 @@ Set `julia-repl-executable-records` to a list of keys and executables. For examp
 ```
 provides two executables. Make sure that there is one entry with the key of the global value of `julia-repl-executable-key`, which defaults to `'default`.
 
-Use `C-c C-s` to select one of these (`julia-repl-prompt-executable`). You can also set the value of `julia-repl-executable-key` directly to a key in the `julia-repl-executable-records`, eg using [file variables](https://www.gnu.org/software/emacs/manual/html_node/emacs/Specifying-File-Variables.html), but make sure you select a correct value.
+Use `C-c C-v` to select one of these (`julia-repl-prompt-executable`). You can also set the value of `julia-repl-executable-key` directly to a key in the `julia-repl-executable-records`, eg using [file variables](https://www.gnu.org/software/emacs/manual/html_node/emacs/Specifying-File-Variables.html), but make sure you select a correct value.
 
 The name of the inferior buffer will reflect your choice: the default is `*julia*` (indicator omitted), while the `master` executable would map to `*julia-master*`, and so on.
 
@@ -75,6 +83,7 @@ Switches to the `julia` process can be provided in the variable `julia-repl-swit
 ```elisp
 (setq-default julia-repl-switches "-p 4")
 ```
+The function `julia-repl-prompt-switches` will prompt for new switches, you  can bind it to a key.
 
 ### File local variables
 
