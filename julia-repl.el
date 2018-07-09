@@ -116,6 +116,12 @@ Can be a symbol (with NIL being the default) or a number. See
 ‘julia-repl--inferior-buffer-name’ for details on how it is
 used to generate a buffer name.")
 
+(defvar-local julia-repl--inferior-buffer-suffix nil
+  "Suffix for a specific inferior buffer.
+
+These are used for offering choices when selecting new suffix.
+For internal use only.")
+
 (defvar julia-repl-executable-key nil
   "Key for the executable associated with the buffer.
 
@@ -261,7 +267,7 @@ BASEDIR is used for the base directory."
   (julia-repl--setup-term inferior-buffer)
   (julia-repl--run-hooks inferior-buffer))
 
-(defun julia-repl--start-and-setup (inferior-buffer-name executable-record)
+(defun julia-repl--start-and-setup (inferior-buffer-name executable-record suffix)
   "Using start a Julia REPL in INFERIOR-BUFFER-NAME using EXECUTABLE-RECORD.
 
 Return the buffer.  Buffer is not raised."
@@ -271,6 +277,7 @@ Return the buffer.  Buffer is not raised."
          (inferior-buffer (julia-repl--start-inferior inferior-buffer-name
                                                       executable-path)))
     (julia-repl--setup inferior-buffer basedir)
+    (setf (buffer-local-value 'julia-repl--inferior-buffer-suffix inferior-buffer) suffix)
     inferior-buffer))
 
 (cl-defun julia-repl--executable-record (executable-key)
@@ -296,7 +303,8 @@ raised if not found."
   "Start a REPL and return the buffer with the given EXECUTABLE-KEY and SUFFIX."
   (julia-repl--start-and-setup
    (julia-repl--inferior-buffer-name executable-key suffix)
-   (julia-repl--executable-record executable-key)))
+   (julia-repl--executable-record executable-key)
+   suffix))
 
 
 ;; prompting for executable-key and suffix
@@ -327,12 +335,13 @@ See ‘julia-repl--inferior-buffer-name’."
          (suffix-buffer-alist (mapcar
                                (lambda (buffer)
                                  (cons (buffer-local-value
-                                        'julia-repl-inferior-buffer-name-suffix
+                                        'julia-repl--inferior-buffer-suffix
                                         buffer)
                                        buffer))
                                matching-inferior-buffers))
          (suffix (completing-read "julia-repl inferior buffer name suffix (nil): "
                                   suffix-buffer-alist)))
+    (message "suffix buffer alist %s" suffix-buffer-alist)
     (intern suffix)))
 
 (cl-defun julia-repl--unused-inferior-buffer-name-index (executable-key)
