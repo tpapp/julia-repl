@@ -267,18 +267,20 @@ BASEDIR is used for the base directory."
   (julia-repl--setup-term inferior-buffer)
   (julia-repl--run-hooks inferior-buffer))
 
-(defun julia-repl--start-and-setup (inferior-buffer-name executable-record suffix)
+(defun julia-repl--start-and-setup (executable-key suffix)
   "Using start a Julia REPL in INFERIOR-BUFFER-NAME using EXECUTABLE-RECORD.
 
 Return the buffer.  Buffer is not raised."
-  (julia-repl--complete-executable-record! executable-record)
-  (let* ((executable-path (second executable-record))
-         (basedir (plist-get (cddr executable-record) :basedir))
-         (inferior-buffer (julia-repl--start-inferior inferior-buffer-name
-                                                      executable-path)))
-    (julia-repl--setup inferior-buffer basedir)
-    (setf (buffer-local-value 'julia-repl--inferior-buffer-suffix inferior-buffer) suffix)
-    inferior-buffer))
+  (let ((executable-record (julia-repl--executable-record executable-key))
+        (inferior-buffer-name (julia-repl--inferior-buffer-name executable-key suffix)))
+    (julia-repl--complete-executable-record! executable-record)
+    (let* ((executable-path (second executable-record))
+           (basedir (plist-get (cddr executable-record) :basedir))
+           (inferior-buffer (julia-repl--start-inferior inferior-buffer-name
+                                                        executable-path)))
+      (julia-repl--setup inferior-buffer basedir)
+      (setf (buffer-local-value 'julia-repl--inferior-buffer-suffix inferior-buffer) suffix)
+      inferior-buffer)))
 
 (cl-defun julia-repl--executable-record (executable-key)
   "Return the executable record for EXECUTABLE-KEY.
@@ -298,13 +300,6 @@ raised if not found."
                          (julia-repl--inferior-buffer-name)))))
       (when (term-check-proc inferior-buffer)
         inferior-buffer)))
-
-(defun julia-repl--start (executable-key suffix)
-  "Start a REPL and return the buffer with the given EXECUTABLE-KEY and SUFFIX."
-  (julia-repl--start-and-setup
-   (julia-repl--inferior-buffer-name executable-key suffix)
-   (julia-repl--executable-record executable-key)
-   suffix))
 
 
 ;; prompting for executable-key and suffix
@@ -411,8 +406,8 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
   "Return the Julia REPL inferior buffer, creating one if it does not exist."
   (if-let ((inferior-buffer (julia-repl--live-buffer)))
       inferior-buffer
-    (julia-repl--start (julia-repl--get-executable-key)
-                       julia-repl-inferior-buffer-name-suffix)))
+    (julia-repl--start-and-setup (julia-repl--get-executable-key)
+                                 julia-repl-inferior-buffer-name-suffix)))
 
 ;;;###autoload
 (defun julia-repl ()
