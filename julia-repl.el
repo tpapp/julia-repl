@@ -334,9 +334,15 @@ See ‘julia-repl--inferior-buffer-name’."
                                         buffer)
                                        buffer))
                                matching-inferior-buffers))
-         (suffix (completing-read "julia-repl inferior buffer name suffix (nil): "
-                                  suffix-buffer-alist)))
-    (message "suffix buffer alist %s" suffix-buffer-alist)
+         (suffix-buffer-alist (stable-sort suffix-buffer-alist
+                                    (lambda (x y)
+                                      (or (not x)
+                                          (string< (prin1-to-string x)
+                                                   (prin1-to-string y))))
+                                    :key #'car))
+         (suffix (completing-read "julia-repl inferior buffer name suffix: "
+                                  sorted-alist)))
+    (message "suffix buffer alist %s" suffix)
     (intern suffix)))
 
 (cl-defun julia-repl--unused-inferior-buffer-name-index (executable-key)
