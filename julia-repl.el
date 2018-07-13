@@ -341,7 +341,7 @@ See ‘julia-repl--inferior-buffer-name’."
                                                    (prin1-to-string y))))
                                     :key #'car))
          (suffix (completing-read "julia-repl inferior buffer name suffix: "
-                                  sorted-alist)))
+                                  suffix-buffer-alist)))
     (message "suffix buffer alist %s" suffix)
     (intern suffix)))
 
