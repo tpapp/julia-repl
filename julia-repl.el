@@ -174,16 +174,14 @@ This matches the buffer name created by ‘make-term’."
 (cl-defun julia-repl--capture-basedir (executable-path)
   "Attempt to obtain the Julia base directory by querying the Julia executable.
 
-When NIL, this was unsuccessful.
-
-Note: this is necessary for Julia v0.6.*, from v0.7- the full path is used."
-  (let* ((prefix "OK")
-         (expr (concat "\"VERSION > v\\\"0.7-\\\" || print(\\\"" prefix
-                       "\\\" * normpath(joinpath(JULIA_HOME, Base.DATAROOTDIR, "
-                       "\\\"julia\\\", \\\"base\\\")))\""))
+When NIL, this was unsuccessful."
+  (let* ((prefix "OK") ; prefix is used to verify that there was no error and help with extraction
+         (expr (concat "print(\"" prefix
+                       "\" * normpath(joinpath(VERSION ≤ v\"0.7-\" ? JULIA_HOME : Sys.BINDIR, "
+                       "Base.DATAROOTDIR, \"julia\", \"base\")))"))
          (switches " --history-file=no --startup-file=no -qe ")
          (maybe-basedir (shell-command-to-string
-                         (concat executable-path switches expr))))
+                         (concat executable-path switches (concat "'" expr "'")))))
     (when (string-prefix-p prefix maybe-basedir)
       (substring maybe-basedir (length prefix)))))
 
