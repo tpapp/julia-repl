@@ -38,8 +38,6 @@ All actions that send something to the REPL terminate with a **newline**, trigge
 
 All commands send code using [bracketed paste](https://cirw.in/blog/bracketed-paste). When Julia is waiting for input, control characters like `^[[200~` may show up in your buffer, this is innocuous. If you input takes a long time to evaluate, you can step through it line-by-line with `C-RET`.
 
-When called with a prefix (eg `C-u` or `C--`), `C-c C-z` (`julia-repl`) will prompt for the executable key and always create a new REPL. This is useful for temporary REPL's, eg trying out something without affecting an existing process. Users can also bind `julia-repl-prompt-new` for this functionality.
-
 ## Environment variables
 
 You can set environment variables directly from your `init.el` in Emacs, eg
@@ -50,7 +48,7 @@ You can set environment variables directly from your `init.el` in Emacs, eg
 
 ## Buffer-local inferior REPL and Julia executable
 
-The minor mode allows the user to select a particular Julia executable and optionally a different inferior buffer for each source code buffer. This allows running two versions (eg stable and master) of Julia simultaneously, and/or running multiple inferior REPLs of the same Julia version.
+The minor mode allows the user to select a particular Julia executable and optionally a different inferior buffer for each source code buffer. This allows running two versions (eg stable and master) of Julia simultaneously, and/or running multiple inferior REPLs of the same Julia version. A typical use case is trying out something quickly, without changing the state of the current process.
 
 ### Julia executables
 
@@ -60,7 +58,7 @@ Set `julia-repl-executable-records` to a list of keys and executables. For examp
       '((default "julia")
         (master (expanduser "~/src/julia-git/julia"))))
 ```
-provides two executables. Make sure that there is one entry with the key of the global value of `julia-repl-executable-key`, which defaults to `'default`.
+provides two executables. The first entry is always the default.
 
 Use `C-c C-v` to select one of these (`julia-repl-prompt-executable`). You can also set the value of `julia-repl-executable-key` directly to a key in the `julia-repl-executable-records`, eg using [file variables](https://www.gnu.org/software/emacs/manual/html_node/emacs/Specifying-File-Variables.html), but make sure you select a correct value.
 
@@ -78,10 +76,10 @@ It is recommended that you use `C-c C-s` (`julia-repl-prompt-inferior-buffer-nam
 
 ### Switches
 
-Switches to the `julia` process can be provided in the variable `julia-repl-switches`, which is also buffer-local. Eg
+Switches to the `julia` process can be provided in the global variable `julia-repl-switches`, for example
 
 ```elisp
-(setq-default julia-repl-switches "-p 4")
+(setq julia-repl-switches "-p 4")
 ```
 The function `julia-repl-prompt-switches` will prompt for new switches, you  can bind it to a key.
 
@@ -115,4 +113,4 @@ See the [issues](https://github.com/tpapp/julia-repl/issues).
 
 ## Comparison to ESS
 
-A well-known alternative is [ESS](https://ess.r-project.org/), which also supports Julia. `julia-repl` was written because I could not use [Gallium](https://github.com/Keno/Gallium.jl) from ESS, which is based on `comint`, and thus does not allow a fully functioning terminal. Also, relying on the interactive features of the Julia REPL implies that I would not need to change this library to incorporate extensions and changes.
+A well-known alternative is [ESS](https://ess.r-project.org/), which also supports Julia. `julia-repl` was written because I could not use [Gallium](https://github.com/Keno/Gallium.jl) from ESS, which is based on `comint`, and thus does not allow a fully functioning terminal. Also, relying on the interactive features of the Julia REPL implies that I would not need to change this library to incorporate extensions and changes that rely on the terminal.
