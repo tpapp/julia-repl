@@ -489,7 +489,7 @@ Selection semantics same as ‘julia-repl-send-region-or-line’."
 
 Selection semantics same as ‘julia-repl-send-region-or-line’."
   (interactive)
-  (julia-repl-send-region-or-line "macroexpand(quote " " end)"))
+  (julia-repl-send-region-or-line "macroexpand(Main, quote " " end)"))
 
 (defun julia-repl-send-buffer (arg)
   "Send the contents of the current buffer to the Julia REPL.
