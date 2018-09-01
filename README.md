@@ -55,10 +55,10 @@ The minor mode allows the user to select a particular Julia executable and optio
 Set `julia-repl-executable-records` to a list of keys and executables. For example,
 ```elisp
 (setq julia-repl-executable-records
-      '((default "julia")
-        (master (expanduser "~/src/julia-git/julia"))))
+      '((default "julia")                  ; in the executable path
+        (master "~/src/julia-git/julia"))) ; compiled from the repository
 ```
-provides two executables. The first entry is always the default.
+provides two executables. The first entry is always the default (it can have any other key).
 
 Use `C-c C-v` to select one of these (`julia-repl-prompt-executable`). You can also set the value of `julia-repl-executable-key` directly to a key in the `julia-repl-executable-records`, eg using [file variables](https://www.gnu.org/software/emacs/manual/html_node/emacs/Specifying-File-Variables.html), but make sure you select a correct value.
 
