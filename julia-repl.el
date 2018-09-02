@@ -521,6 +521,16 @@ this with a prefix argument ARG."
       (julia-repl--send-string (concat "cd(\"" (file-name-directory filename) "\")"))
     (warn "buffer not associated with a file")))
 
+(defun julia-repl-activate-parent ()
+  "Look for a project file in the parent directories, if found, activate the project."
+  (interactive)
+  (if-let ((projectfile (locate-dominating-file (buffer-file-name) "Project.toml")))
+      (progn (message "activating %s" projectfile)
+             (julia-repl--send-string (concat "import Pkg; Pkg.activate(\""
+                                              (expand-file-name (file-name-directory projectfile))
+                                              "\")")))
+    (message "could not find project file")))
+
 ;;;###autoload
 (define-minor-mode julia-repl-mode
   "Minor mode for interacting with a Julia REPL running inside a term."
@@ -534,7 +544,8 @@ this with a prefix argument ARG."
     (,(kbd "C-c C-m")    . julia-repl-macroexpand)
     (,(kbd "C-c C-s")    . julia-repl-prompt-set-inferior-buffer-name-suffix)
     (,(kbd "C-c C-v")    . julia-repl-prompt-set-executable-key)
-    (,(kbd "C-c C-p")    . julia-repl-cd))
+    (,(kbd "C-c C-p")    . julia-repl-cd)
+    (,(kbd "C-c C-a")    . julia-repl-activate-parent))
   (setq-local default-directory
               (when-let ((filename (buffer-file-name)))
                 (setq-local default-directory (file-name-directory filename)))))
