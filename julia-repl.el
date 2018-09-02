@@ -524,12 +524,16 @@ this with a prefix argument ARG."
 (defun julia-repl-activate-parent ()
   "Look for a project file in the parent directories, if found, activate the project."
   (interactive)
-  (if-let ((projectfile (locate-dominating-file (buffer-file-name) "Project.toml")))
-      (progn (message "activating %s" projectfile)
-             (julia-repl--send-string (concat "import Pkg; Pkg.activate(\""
-                                              (expand-file-name (file-name-directory projectfile))
-                                              "\")")))
-    (message "could not find project file")))
+  (flet ((find-projectfile (filename)
+                           (locate-dominating-file (buffer-file-name) filename)))
+    (if-let ((projectfile (or (find-projectfile "Project.toml")
+                              (find-projectfile "JuliaProject.toml"))))
+        (progn
+          (message "activating %s" projectfile)
+          (julia-repl--send-string
+           (concat "import Pkg; Pkg.activate(\""
+                   (expand-file-name (file-name-directory projectfile)) "\")")))
+      (message "could not find project file"))))
 
 ;;;###autoload
 (define-minor-mode julia-repl-mode
