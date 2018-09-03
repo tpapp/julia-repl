@@ -524,8 +524,8 @@ this with a prefix argument ARG."
 (defun julia-repl-activate-parent ()
   "Look for a project file in the parent directories, if found, activate the project."
   (interactive)
-  (flet ((find-projectfile (filename)
-                           (locate-dominating-file (buffer-file-name) filename)))
+  (cl-flet ((find-projectfile (filename)
+                              (locate-dominating-file (buffer-file-name) filename)))
     (if-let ((projectfile (or (find-projectfile "Project.toml")
                               (find-projectfile "JuliaProject.toml"))))
         (progn
