@@ -4,7 +4,8 @@
 ;; Author: Tamas Papp <tkpapp@gmail.com>
 ;; Keywords: languages
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "25") (s "1.10"))
+;; Package-Requires: ((emacs "25"))
+;; URL: https://github.com/tpapp/julia-repl
 
 ;;; Usage:
 ;; Put the following code in your .emacs, site-load.el, or other relevant file
@@ -75,7 +76,7 @@ Note that this affects all buffers using the ‘ansi-term’ map."
 
 ;; global variables
 
-(defvar julia-compilation-regexp-alist
+(defvar julia-repl--compilation-regexp-alist
   '(;; matches "while loading /tmp/Foo.jl, in expression starting on line 2"
     (julia-load-error . ("while loading \\([^ ><()\t\n,'\";:]+\\), in expression starting on line \\([0-9]+\\)" 1 2))
     ;; matches "around /tmp/Foo.jl:2", also starting with "at" or "Revise"
@@ -227,7 +228,7 @@ Note that this affects ‘term’ globally."
 BASEDIR is used for resolving relative paths."
   (with-current-buffer inferior-buffer
     (setq-local compilation-error-regexp-alist-alist
-                julia-compilation-regexp-alist)
+                julia-repl--compilation-regexp-alist)
     (setq-local compilation-error-regexp-alist
                 (mapcar #'car compilation-error-regexp-alist-alist))
     (when basedir
