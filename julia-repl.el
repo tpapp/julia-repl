@@ -124,7 +124,7 @@ For internal use only.")
 (defvar julia-repl-executable-key nil
   "Key for the executable associated with the buffer.
 
-Looked up in ‘julia-repl-executable-records’. When ‘nil’, the
+Looked up in ‘julia-repl-executable-records’. When nil, the
 first value is used.
 
 See ‘julia-repl--inferior-buffer-name’ for how it is used to
@@ -265,7 +265,9 @@ BASEDIR is used for the base directory."
   (julia-repl--run-hooks inferior-buffer))
 
 (defun julia-repl--start-and-setup (executable-key suffix)
-  "Using start a Julia REPL in INFERIOR-BUFFER-NAME using EXECUTABLE-RECORD.
+  "Start an setup a Julia REPL.
+
+Buffer name and executable determined by EXECUTABLE-KEY and SUFFIX.
 
 Return the buffer.  Buffer is not raised."
   (let ((executable-record (julia-repl--executable-record executable-key))
