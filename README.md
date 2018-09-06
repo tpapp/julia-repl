@@ -1,5 +1,7 @@
 # julia-repl: run an inferior Julia REPL in Emacs
 
+[![MELPA](https://melpa.org/packages/julia-repl-badge.svg)](https://melpa.org/#/julia-repl)
+
 This is a minor mode for interacting with a Julia REPL running inside Emacs. The `julia` process is started in an ANSI terminal (`term`), which allows text formatting and colors, and interaction with the help system and the debugger.
 
 It is recommended that you use this minor mode with [julia-mode](https://github.com/JuliaEditorSupport/julia-emacs).
