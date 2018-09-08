@@ -104,7 +104,7 @@ first entry is the default.")
 (defun julia-repl--default-executable-key ()
   "Return the default executable key."
   (let ((key (caar julia-repl-executable-records)))
-    (assert key "Could not find any key in JULIA-REPL-EXECUTABLE-RECORDS.")
+    (cl-assert key "Could not find any key in JULIA-REPL-EXECUTABLE-RECORDS.")
     key))
 
 (defvar julia-repl-inferior-buffer-name-suffix nil
