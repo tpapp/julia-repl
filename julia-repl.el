@@ -553,9 +553,8 @@ this with a prefix argument ARG."
     (,(kbd "C-c C-v")    . julia-repl-prompt-set-executable-key)
     (,(kbd "C-c C-p")    . julia-repl-cd)
     (,(kbd "C-c C-a")    . julia-repl-activate-parent))
-  (setq-local default-directory
-              (when-let ((filename (buffer-file-name)))
-                (setq-local default-directory (file-name-directory filename)))))
+  (when-let ((filename (buffer-file-name)))
+    (setq-local default-directory (file-name-directory filename))))
 
 (provide 'julia-repl)
 ;;; julia-repl.el ends here
