@@ -524,19 +524,25 @@ this with a prefix argument ARG."
       (julia-repl--send-string (concat "cd(\"" (file-name-directory filename) "\")"))
     (warn "buffer not associated with a file")))
 
-(defun julia-repl-activate-parent ()
-  "Look for a project file in the parent directories, if found, activate the project."
-  (interactive)
-  (cl-flet ((find-projectfile (filename)
-                              (locate-dominating-file (buffer-file-name) filename)))
-    (if-let ((projectfile (or (find-projectfile "Project.toml")
-                              (find-projectfile "JuliaProject.toml"))))
-        (progn
-          (message "activating %s" projectfile)
-          (julia-repl--send-string
-           (concat "import Pkg; Pkg.activate(\""
-                   (expand-file-name (file-name-directory projectfile)) "\")")))
-      (message "could not find project file"))))
+(defun julia-repl-activate-parent (arg)
+  "Look for a project file in the parent directories, if found, activate the project.
+
+When called with a prefix argument, activate the home project."
+  (interactive "P")
+  (if arg
+      (progn
+        (message "activating home project")
+        (julia-repl--send-string "import Pkg; Pkg.activate()"))
+    (cl-flet ((find-projectfile (filename)
+                                (locate-dominating-file (buffer-file-name) filename)))
+      (if-let ((projectfile (or (find-projectfile "Project.toml")
+                                (find-projectfile "JuliaProject.toml"))))
+          (progn
+            (message "activating %s" projectfile)
+            (julia-repl--send-string
+             (concat "import Pkg; Pkg.activate(\""
+                     (expand-file-name (file-name-directory projectfile)) "\")")))
+        (message "could not find project file")))))
 
 ;;;###autoload
 (define-minor-mode julia-repl-mode

@@ -36,6 +36,7 @@ If you want to use a Julia executable other than `julia` in your path, see [belo
 | `C-c C-m`     | expand macro                                                |
 | `C-c C-p`     | change directory to that of the buffer                      |
 | `C-c C-a`     | activate if there is a `Project.toml` in parent directories |
+| `C-u C-c C-a` | activate home project                                       |
 
 All actions that send something to the REPL terminate with a **newline**, triggering evaluation. If you want to avoid sending a newline (eg maybe because you want to edit an expression), use prefix arguments (`C--` or `C-u`, currently both have the same effect). This of course does not apply to `C-c C-b`.
 
