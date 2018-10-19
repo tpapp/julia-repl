@@ -559,7 +559,8 @@ When called with a prefix argument, activate the home project."
     (,(kbd "C-c C-v")    . julia-repl-prompt-set-executable-key)
     (,(kbd "C-c C-p")    . julia-repl-cd)
     (,(kbd "C-c C-a")    . julia-repl-activate-parent))
-  (when-let ((filename (buffer-file-name)))
+  (when-let ((filename (buffer-file-name))
+             (identity buffer-file-truename))
     (setq-local default-directory (file-name-directory filename))))
 
 (provide 'julia-repl)
