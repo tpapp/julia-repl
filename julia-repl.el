@@ -438,6 +438,7 @@ Unless NO-BRACKETED-PASTE, bracketed paste control sequences are used."
   (let ((inferior-buffer (julia-repl-inferior-buffer)))
     (display-buffer inferior-buffer)
     (with-current-buffer inferior-buffer
+      (term-send-raw-string "\b")       ; send backspace to exit pkg> or shell>
       (unless no-bracketed-paste        ; bracketed paste start
         (term-send-raw-string "\e[200~"))
       (term-send-raw-string (string-trim string))
