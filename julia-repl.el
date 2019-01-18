@@ -33,18 +33,20 @@
 ;; WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ;;; Commentary:
-;; Run a julia REPL inside a terminal in Emacs.  In contrast to ESS, use
+;; Run a julia REPL in Emacs.  In contrast to ESS, use
 ;; the Julia REPL facilities for interactive features, such readline,
 ;; help, debugging.
 
 ;;; Code:
 
-(require 'term)
 (require 'subr-x)
 (require 'cl-lib)
 (require 'compile)
 (require 's)
 (require 'seq)
+
+(require 'julia-repl-comint)
+(require 'julia-repl-term)
 
 ;;
 ;; customizations
@@ -64,13 +66,6 @@ See ‘julia-repl--inferior-buffer-name’."
 (defcustom julia-repl-hook nil
   "Hook to run after starting a Julia REPL term buffer."
   :type 'hook
-  :group 'julia-repl)
-
-(defcustom julia-repl-captures (list (kbd "M-x"))
-  "List of key sequences that are passed through (the global binding is used).
-
-Note that this affects all buffers using the ‘ansi-term’ map."
-  :type '(repeat key-sequence)
   :group 'julia-repl)
 
 (defcustom julia-repl-compilation-mode t
@@ -99,6 +94,11 @@ in your Emacs init file after loading this package."
 (defcustom julia-repl-path-cygwin-prefix "c:/cygwin64"
   "Prepended to paths by some Cygwin rewrite rules when no other information is available."
   :type 'string
+  :group 'julia-repl)
+
+(defcustom julia-repl-buffer-backend 'term
+  "Emacs backend for managing the Julia REPL buffer. Can be either 'term or 'comint."
+  :type 'symbol
   :group 'julia-repl)
 
 ;;
@@ -229,7 +229,7 @@ prevent further attempts."
               executable-path)))))
 
 (defun julia-repl--split-switches ()
-  "Return a list of switches, to be passed on to ‘make-term’."
+  "Return a list of switches, to be passed on to the Julia process."
   (when julia-repl-switches
     (split-string julia-repl-switches)))
 
@@ -240,16 +240,9 @@ Creates INFERIOR-BUFFER-NAME (‘make-term’ surrounds it with *s),
 running EXECUTABLE-PATH.
 
 Return the inferior buffer.  No setup is performed."
-  (apply #'make-term inferior-buffer-name executable-path nil
-         (julia-repl--split-switches)))
-
-(defun julia-repl--setup-captures ()
-  "Set up captured keys which are captured from ‘term’.
-
-Note that this affects ‘term’ globally."
-  (mapc (lambda (k)
-          (define-key term-raw-map k (global-key-binding k)))
-        julia-repl-captures))
+  (cl-case julia-repl-buffer-backend
+    (comint (julia-repl-comint--start-inferior inferior-buffer-name executable-path))
+    (term (julia-repl-term--start-inferior inferior-buffer-name executable-path))))
 
 (defun julia-repl--setup-compilation-mode (inferior-buffer basedir)
   "Setup compilation mode for the the current buffer in INFERIOR-BUFFER.
@@ -269,28 +262,16 @@ BASEDIR is used for resolving relative paths."
   (with-current-buffer inferior-buffer
     (run-hooks 'julia-repl-hook)))
 
-(defun julia-repl--setup-term (inferior-buffer)
-  "Set up customizations for term mode in INFERIOR-BUFFER.
-
-Note that not all effects are buffer local."
-  (with-current-buffer inferior-buffer
-      (term-char-mode)
-      (term-set-escape-char ?\C-x)      ; useful for switching windows
-      (setq-local term-prompt-regexp "^(julia|shell|help\\?|(\\d+\\|debug ))>")
-      (setq-local term-suppress-hard-newline t)  ; reflow text
-      (setq-local term-scroll-show-maximum-output t)
-      ;; do I need this?
-      (setq-local term-scroll-to-bottom-on-output t)
-      ))
-
 (defun julia-repl--setup (inferior-buffer basedir)
   "Setup a newly created INFERIOR-BUFFER.
 
 BASEDIR is used for the base directory."
   (when julia-repl-compilation-mode
     (julia-repl--setup-compilation-mode inferior-buffer basedir))
-  (julia-repl--setup-captures)
-  (julia-repl--setup-term inferior-buffer)
+  (cl-case julia-repl-buffer-backend
+    (term (julia-repl-term--setup-captures)
+	  (julia-repl-term--setup-term inferior-buffer))
+    (comint (julia-repl-comint--setup-buffer)))
   (julia-repl--run-hooks inferior-buffer))
 
 (defun julia-repl--start-and-setup (executable-key suffix)
@@ -324,10 +305,13 @@ raised if not found."
 (defun julia-repl--live-buffer ()
   "Return the inferior buffer if it has a running REPL, otherwise NIL."
   (if-let ((inferior-buffer
-            (get-buffer (julia-repl--add-earmuffs
-                         (julia-repl--inferior-buffer-name)))))
-      (when (term-check-proc inferior-buffer)
-        inferior-buffer)))
+	    (get-buffer (julia-repl--add-earmuffs
+			 (julia-repl--inferior-buffer-name)))))
+      (cl-case julia-repl-buffer-backend
+	(comint (when (comint-check-proc inferior-buffer)
+		  inferior-buffer))
+	(term (when (term-check-proc inferior-buffer)
+		inferior-buffer)))))
 
 ;;
 ;; prompting for executable-key and suffix
@@ -494,7 +478,7 @@ prepend ‘julia-repl-path-cygwin-prefix’."
 ;;
 
 (defun julia-repl--send-string (string &optional no-newline no-bracketed-paste)
-  "Send STRING to the Julia REPL term buffer.
+  "Send STRING to the Julia REPL buffer.
 
 A closing newline is sent according to NO-NEWLINE:
 
@@ -503,21 +487,12 @@ A closing newline is sent according to NO-NEWLINE:
   3. otherwise no newline.
 
 Unless NO-BRACKETED-PASTE, bracketed paste control sequences are used."
-  (let ((inferior-buffer (julia-repl-inferior-buffer)))
-    (display-buffer inferior-buffer)
-    (with-current-buffer inferior-buffer
-      (unless no-bracketed-paste        ; bracketed paste start
-        (term-send-raw-string "\e[200~"))
-      (term-send-raw-string (string-trim string))
-      (when (eq no-newline 'prefix)
-        (setq no-newline current-prefix-arg))
-      (unless no-newline
-        (term-send-raw-string "\^M"))
-      (unless no-bracketed-paste        ; bracketed paste stop
-        (term-send-raw-string "\e[201~")))))
+  (cl-case julia-repl-buffer-backend
+    (comint (julia-repl-comint--send-string string no-newline no-bracketed-paste))
+    (term (julia-repl-term--send-string string no-newline no-bracketed-paste))))
 
 (defun julia-repl-send-line ()
-  "Send the current line to the Julia REPL term buffer.
+  "Send the current line to the Julia REPL buffer.
 
 Closed with a newline, unless used with a prefix argument.
 
@@ -525,8 +500,9 @@ This is the only REPL interaction function that does not use
 bracketed paste.  Unless you want this specifically, you should
 probably be using `julia-repl-send-region-or-line'."
   (interactive)
-  (julia-repl--send-string (thing-at-point 'line t) 'prefix t)
-  (forward-line))
+  (cl-case julia-repl-buffer-backend
+    (comint (julia-repl-comint-send-line))
+    (term (julia-repl-term-send-line))))
 
 (defun julia-repl-send-region-or-line (&optional prefix suffix)
   "Send active region (if any) or current line to the inferior buffer.
@@ -651,7 +627,7 @@ When called with a prefix argument, activate the home project."
 
 ;;;###autoload
 (define-minor-mode julia-repl-mode
-  "Minor mode for interacting with a Julia REPL running inside a term."
+  "Minor mode for interacting with a Julia REPL."
   nil ">"
   `((,(kbd "C-c C-c")    . julia-repl-send-region-or-line)
     (,(kbd "C-c C-b")    . julia-repl-send-buffer)
