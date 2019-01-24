@@ -83,7 +83,7 @@ Note that this affects all buffers using the ‘ansi-term’ map."
     ;; matches "around /tmp/Foo.jl:2", also starting with "at" or "Revise"
     (julia-loc . ("\\(around\\|at\\|Revise\\) \\([^ ><()\t\n,'\";:]+\\):\\([0-9]+\\)" 2 3))
     ;; matches "omitting file /tmp/Foo.jl due to parsing error near line 2", from Revise.parse_source!
-    (julia-warn-revise . ("omitting file ([^ ><()\t\n,'\";:]+\\) due to parsing error near line \\([0-9]+\\)" 1 2))
+    (julia-warn-revise . ("omitting file \\([^ ><()\t\n,'\";:]+\\) due to parsing error near line \\([0-9]+\\)" 1 2))
     )
   "Specifications for highlighting error locations.
 
