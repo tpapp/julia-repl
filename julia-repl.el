@@ -544,6 +544,16 @@ When called with a prefix argument, activate the home project."
                      (expand-file-name (file-name-directory projectfile)) "\")")))
         (message "could not find project file")))))
 
+(defun julia-repl-set-julia-editor (editor)
+  "Set the JULIA_EDITOR environment variable."
+  (interactive)
+  (julia-repl--send-string (format "ENV[\"JULIA_EDITOR\"] = \"%s\";" editor)))
+
+(defun julia-repl-use-emacsclient ()
+  "Use emacsclient as the JULIA_EDITOR."
+  (interactive)
+  (julia-repl--send-string "ENV[\"JULIA_EDITOR\"] = \"emacsclient\";"))
+
 ;;;###autoload
 (define-minor-mode julia-repl-mode
   "Minor mode for interacting with a Julia REPL running inside a term."
