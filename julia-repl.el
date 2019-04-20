@@ -42,9 +42,12 @@
 (require 'term)
 (require 'subr-x)
 (require 'cl-lib)
+(require 'compile)
+(require 'seq)
 
-
+;;
 ;; customizations
+;;
 
 (defgroup julia-repl nil
   "A minor mode for a Julia REPL"
@@ -74,8 +77,9 @@ Note that this affects all buffers using the ‘ansi-term’ map."
   :type 'boolean
   :group 'julia-repl)
 
-
+;;
 ;; global variables
+;;
 
 (defvar julia-repl--compilation-regexp-alist
   '(;; matches "while loading /tmp/Foo.jl, in expression starting on line 2"
@@ -140,8 +144,9 @@ generate a buffer name.")
 Valid values are NIL or a string. These take effect the next time
 a new Julia process is started.")
 
-
+;;
 ;; REPL buffer creation and setup
+;;
 
 (cl-defun julia-repl--inferior-buffer-name
     (&optional (executable-key (julia-repl--get-executable-key))
@@ -192,7 +197,7 @@ Queries and appends missing information if necessary.
 Note: when cannot capture the base dir, it is set to NIL to
 prevent further attempts."
   (unless (plist-member (cddr executable-record) :basedir)
-    (let* ((executable-path (second executable-record))
+    (let* ((executable-path (cl-second executable-record))
            (basedir (julia-repl--capture-basedir executable-path)))
       (nconc executable-record `(:basedir ,basedir))
       (unless basedir
@@ -273,7 +278,7 @@ Return the buffer.  Buffer is not raised."
   (let ((executable-record (julia-repl--executable-record executable-key))
         (inferior-buffer-name (julia-repl--inferior-buffer-name executable-key suffix)))
     (julia-repl--complete-executable-record! executable-record)
-    (let* ((executable-path (second executable-record))
+    (let* ((executable-path (cl-second executable-record))
            (basedir (plist-get (cddr executable-record) :basedir))
            (inferior-buffer (julia-repl--start-inferior inferior-buffer-name
                                                         executable-path)))
@@ -300,8 +305,9 @@ raised if not found."
       (when (term-check-proc inferior-buffer)
         inferior-buffer)))
 
-
+;;
 ;; prompting for executable-key and suffix
+;;
 
 (defun julia-repl--matching-inferior-buffers (executable-key)
   "A list of macthing inferior buffers for the current source buffer.
@@ -333,12 +339,12 @@ See ‘julia-repl--inferior-buffer-name’."
                                         buffer)
                                        buffer))
                                matching-inferior-buffers))
-         (suffix-buffer-alist (stable-sort suffix-buffer-alist
-                                    (lambda (x y)
-                                      (or (not x)
-                                          (string< (prin1-to-string x)
-                                                   (prin1-to-string y))))
-                                    :key #'car))
+         (suffix-buffer-alist (cl-stable-sort suffix-buffer-alist
+                                              (lambda (x y)
+                                                (or (not x)
+                                                    (string< (prin1-to-string x)
+                                                             (prin1-to-string y))))
+                                              :key #'car))
          (suffix (completing-read "julia-repl inferior buffer name suffix: "
                                   suffix-buffer-alist)))
     (message "suffix buffer alist %s" suffix)
@@ -352,7 +358,7 @@ See ‘julia-repl--inferior-buffer-name’."
     (while (get-buffer (julia-repl--add-earmuffs
                         (julia-repl--inferior-buffer-name executable-key
                                                           index)))
-      (incf index))
+      (cl-incf index))
     index))
 
 (defun julia-repl-prompt-set-inferior-buffer-name-suffix (arg)
@@ -375,7 +381,7 @@ Both of these happen without prompting."
                   ((integerp arg)
                    arg)
                   ((listp arg)
-                   (first arg)))))
+                   (cl-first arg)))))
     (setq julia-repl-inferior-buffer-name-suffix suffix)
     (message "julia-repl-inferior-buffer-name-suffix set to %s" suffix)))
 
@@ -404,8 +410,9 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
     (message "julia-repl-executable-key set to %s"
              (propertize (symbol-name key) 'face 'font-lock-constant-face))))
 
-
+;;
 ;; high-level functions
+;;
 
 (defun julia-repl-inferior-buffer ()
   "Return the Julia REPL inferior buffer, creating one if it does not exist."
@@ -422,8 +429,9 @@ This is the standard entry point for using this package."
   (interactive)
   (switch-to-buffer-other-window (julia-repl-inferior-buffer)))
 
-
+;;
 ;; sending to the REPL
+;;
 
 (defun julia-repl--send-string (string &optional no-newline no-bracketed-paste)
   "Send STRING to the Julia REPL term buffer.
