@@ -520,8 +520,10 @@ this with a prefix argument ARG."
 (defun julia-repl-cd ()
   "Change directory to the directory of the current buffer (if applicable)."
   (interactive)
-  (if-let ((filename (buffer-file-name)))
-      (julia-repl--send-string (concat "cd(\"" (file-name-directory filename) "\")"))
+  (if-let ((directory (file-name-directory (buffer-file-name))))
+      (progn
+	(julia-repl--send-string (concat "cd(\"" directory "\")"))
+	(with-current-buffer (julia-repl-inferior-buffer) (cd directory)))
     (warn "buffer not associated with a file")))
 
 (defun julia-repl-activate-parent (arg)
