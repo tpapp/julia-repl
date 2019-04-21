@@ -10,7 +10,7 @@ It is recommended that you use this minor mode with [julia-mode](https://github.
 
 ## Installation and loading
 
-**Please make sure you have at least Emacs 25**. The `term` code changed a bit since Emacs 24, and the package does not support it. For example, Ubuntu users can get the latest Emacs snapshot [here](https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa).
+**Please make sure you have at least Emacs 25**. The `term` code changed a bit since Emacs 24, and the package does not support that and earlier versions. For example, Ubuntu has had Emacs 25 since 18.04LTS.
 
 Place this in your **Emacs initialization files** (eg `.emacs`):
 ```emacs-lisp
@@ -127,4 +127,4 @@ See the [issues](https://github.com/tpapp/julia-repl/issues).
 
 ## Comparison to ESS
 
-A well-known alternative is [ESS](https://ess.r-project.org/), which also supports Julia. `julia-repl` was written because I could not use [Gallium](https://github.com/Keno/Gallium.jl) from ESS, which is based on `comint`, and thus does not allow a fully functioning terminal. Also, relying on the interactive features of the Julia REPL implies that I would not need to change this library to incorporate extensions and changes that rely on the terminal.
+A well-known alternative is [ESS](https://ess.r-project.org/), which also supports Julia. `julia-repl` was written because I could not use the debugger from ESS, which is based on `comint`, and thus does not allow a fully functioning terminal. Also, relying on the interactive features of the Julia REPL implies that I would not need to change this library to incorporate extensions and changes that rely on the terminal.
