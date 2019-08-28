@@ -531,7 +531,7 @@ this with a prefix argument ARG."
         (setq file nil)))
     (if file
 	(julia-repl--send-string (concat "Revise.includet(\"" file "\");"))
-      ())))
+      (message "buffer has no file or not saved"))))
 
 
 (defun julia-repl-doc ()
