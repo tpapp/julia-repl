@@ -517,8 +517,22 @@ this with a prefix argument ARG."
         (setq file nil)))
     (julia-repl--send-string
      (if file
-         (concat "include(\"" file "\")")
+         (concat "include(\"" file "\");")
        (buffer-substring-no-properties (point-min) (point-max))))))
+
+
+(defun julia-repl-includet-buffer (arg)
+  "Attempts to include a buffer, ARG, via Revise's includet.  If a buffer does not correspond to a file, the function does nothing.  If a buffer corresponds to a file and is not saved, the function prompts the user to save.  If the user refuses to save the file, nothing happen."
+  (interactive "P")
+  (let* ((file (and (not arg) buffer-file-name)))
+    (when (and file (buffer-modified-p))
+      (if (y-or-n-p "Buffer modified, save? ")
+          (save-buffer)
+        (setq file nil)))
+    (if file
+	(julia-repl--send-string (concat "Revise.includet(\"" file "\");"))
+      ())))
+
 
 (defun julia-repl-doc ()
   "Documentation for symbol at point."
@@ -570,6 +584,7 @@ When called with a prefix argument, activate the home project."
   nil ">"
   `((,(kbd "C-c C-c")    . julia-repl-send-region-or-line)
     (,(kbd "C-c C-b")    . julia-repl-send-buffer)
+    (,(kbd "C-c C-d")    . julia-repl-includet-buffer)
     (,(kbd "C-c C-z")    . julia-repl)
     (,(kbd "<C-return>") . julia-repl-send-line)
     (,(kbd "C-c C-e")    . julia-repl-edit)
