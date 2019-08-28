@@ -517,7 +517,7 @@ this with a prefix argument ARG."
         (setq file nil)))
     (julia-repl--send-string
      (if file
-         (concat "include(\"" file "\")")
+         (concat "include(\"" file "\");")
        (buffer-substring-no-properties (point-min) (point-max))))))
 
 (defun julia-repl-doc ()
