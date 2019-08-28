@@ -517,12 +517,12 @@ this with a prefix argument ARG."
         (setq file nil)))
     (julia-repl--send-string
      (if file
-         (concat "include(\"" file "\");")
+         (concat "include(\"" file "\")")
        (buffer-substring-no-properties (point-min) (point-max))))))
 
 
-(defun julia-repl-includet-buffer (arg)
-  "Attempts to include a buffer, ARG, via Revise's includet.  If a buffer does not correspond to a file, the function does nothing.  If a buffer corresponds to a file and is not saved, the function prompts the user to save.  If the user refuses to save the file, nothing happen."
+(defun julia-repl-includet-buffer ()
+  "Attempts to include a buffer via Revise's includet.  If a buffer does not correspond to a file, the function does nothing.  If a buffer corresponds to a file and is not saved, the function prompts the user to save.  If the user refuses to save the file, nothing happen."
   (interactive)
   (let* ((file buffer-file-name))
     (when (and file (buffer-modified-p))
