@@ -524,7 +524,7 @@ this with a prefix argument ARG."
 (defun julia-repl-includet-buffer (arg)
   "Attempts to include a buffer, ARG, via Revise's includet.  If a buffer does not correspond to a file, the function does nothing.  If a buffer corresponds to a file and is not saved, the function prompts the user to save.  If the user refuses to save the file, nothing happen."
   (interactive "P")
-  (let* ((file (and (not arg) buffer-file-name)))
+  (let* ((file buffer-file-name))
     (when (and file (buffer-modified-p))
       (if (y-or-n-p "Buffer modified, save? ")
           (save-buffer)
