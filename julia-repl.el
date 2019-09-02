@@ -81,6 +81,8 @@ Note that this affects all buffers using the ‘ansi-term’ map."
 ;; global variables
 ;;
 
+(defvar julia-repl-tmp-file-name-append ".part.jl")
+
 (defvar julia-repl--compilation-regexp-alist
   '(;; matches "while loading /tmp/Foo.jl, in expression starting on line 2"
     (julia-load-error . ("while loading \\([^ ><()\t\n,'\";:]+\\), in expression starting on line \\([0-9]+\\)" 1 2))
@@ -411,6 +413,40 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
              (propertize (symbol-name key) 'face 'font-lock-constant-face))))
 
 ;;
+;; send part of buffer to temporary file
+;;
+
+(defun julia-repl-tmp-file-name ()
+  "Return the name of the temporary file associated with a buffer."
+  (interactive)
+  (concat (file-name-sans-extension (buffer-name)) julia-repl-tmp-file-name-append))
+
+(defun julia-repl--send-region-to-tmp-file (&optional start end)
+  "Send active region (default), or region limited by START and END, to temporary file associated with a buffer, and in that file add a commented line showing the line numbers in the original buffer."
+  (let ((p1 start) (p2 end))
+    (if (use-region-p)
+	(progn
+	  (setq p1 (region-beginning))
+	  (setq p2 (region-end))
+	  (deactivate-mark)))
+    (if (and p1 p2)
+	(let ((fname (julia-repl-tmp-file-name)))
+	  (progn
+	    (write-region (concat (julia-repl--region-info p1 p2) "\n") nil fname)
+	    (write-region p1 p2 fname t)
+	    (and p1 p2)))))) ;; return t if it did something
+
+(defun julia-repl--region-info (&optional start end)
+  "Return a string containing a Julia comment with the buffer name and line numbers of the active region (default) or the region limited by START and END. Returns NIL if no region is active and no arguments are passed."
+  (let ((p1 start) (p2 end))
+    (if (use-region-p)
+	(progn
+	  (setq p1 (region-beginning))
+	  (setq p2 (region-end))))
+    (if (and p1 p2)
+	(format "# code from %s, lines %d:%d" (buffer-name) (line-number-at-pos p1 t) (line-number-at-pos p2 t)))))
+  
+;;
 ;; high-level functions
 ;;
 
@@ -520,6 +556,17 @@ this with a prefix argument ARG."
          (concat "include(\"" file "\");")
        (buffer-substring-no-properties (point-min) (point-max))))))
 
+(defun julia-repl-send-region-through-tmp-file (&optional start end)
+  "Send the active region, or optionnally the region ranging from START to END, to the Julia REPL by creating (erasing if needed) a temporary file associated with the current buffer."
+  (interactive)
+  (let ((msg (julia-repl--region-info start end)))
+    (if msg
+	(progn
+	  (julia-repl--send-region-to-tmp-file start end)
+	  (julia-repl--send-string
+	   (concat "include(\"" (julia-repl-tmp-file-name) "\") " msg)))
+      (message "No region to work with!"))))
+
 (defun julia-repl-doc ()
   "Documentation for symbol at point."
   (interactive)
@@ -570,6 +617,7 @@ When called with a prefix argument, activate the home project."
   nil ">"
   `((,(kbd "C-c C-c")    . julia-repl-send-region-or-line)
     (,(kbd "C-c C-b")    . julia-repl-send-buffer)
+    (,(kbd "C-c C-f")    . julia-repl-send-region-through-tmp-file)
     (,(kbd "C-c C-z")    . julia-repl)
     (,(kbd "<C-return>") . julia-repl-send-line)
     (,(kbd "C-c C-e")    . julia-repl-edit)

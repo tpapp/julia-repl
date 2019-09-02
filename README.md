@@ -27,6 +27,7 @@ If you want to use a Julia executable other than `julia` in your path, see [belo
 | key           | action                                                      |
 |---------------|-------------------------------------------------------------|
 | `C-c C-c`     | send region (when applicable) or line to REPL               |
+| `C-c C-f`     | send region to REPL (creating a temp file and using include)|
 | `C-c C-b`     | send whole buffer to REPL (using include)                   |
 | `C-u C-c C-b` | send whole buffer to REPL (directly)                        |
 | `C-c C-z`     | raise the REPL or create a new one                          |
@@ -39,6 +40,8 @@ If you want to use a Julia executable other than `julia` in your path, see [belo
 | `C-u C-c C-a` | activate home project                                       |
 
 All actions that send something to the REPL terminate with a **newline**, triggering evaluation. If you want to avoid sending a newline (eg maybe because you want to edit an expression), use prefix arguments (`C--` or `C-u`, currently both have the same effect). This of course does not apply to `C-c C-b`.
+
+Command `C-c C-f` automatically creates a file with name `(buffer-name).part.jl` containing the content of the region (and a commented header line referencing the original buffer name and line numbers in that buffer), and sends its content to the REPL by an `include()` command.
 
 All commands send code using [bracketed paste](https://cirw.in/blog/bracketed-paste). When Julia is waiting for input, control characters like `^[[200~` may show up in your buffer, this is innocuous. If you input takes a long time to evaluate, you can step through it line-by-line with `C-RET`.
 
