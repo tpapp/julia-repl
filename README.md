@@ -28,7 +28,7 @@ If you want to use a Julia executable other than `julia` in your path, see [belo
 |---------------|-------------------------------------------------------------|
 | `C-c C-c`     | send region (when applicable) or line to REPL               |
 | `C-c C-b`     | send whole buffer to REPL (using include)                   |
-| `C-c C-d`     | send whole buffer to REPL (using Revise.includet)           |
+| `C-c C-t`     | send whole buffer to REPL (using Revise.includet)           |
 | `C-u C-c C-b` | send whole buffer to REPL (directly)                        |
 | `C-c C-z`     | raise the REPL or create a new one                          |
 | `C-RET`       | send line to REPL (without bracketed paste)                 |
