@@ -584,7 +584,7 @@ When called with a prefix argument, activate the home project."
   nil ">"
   `((,(kbd "C-c C-c")    . julia-repl-send-region-or-line)
     (,(kbd "C-c C-b")    . julia-repl-send-buffer)
-    (,(kbd "C-c C-d")    . julia-repl-includet-buffer)
+    (,(kbd "C-c C-t")    . julia-repl-includet-buffer)
     (,(kbd "C-c C-z")    . julia-repl)
     (,(kbd "<C-return>") . julia-repl-send-line)
     (,(kbd "C-c C-e")    . julia-repl-edit)
