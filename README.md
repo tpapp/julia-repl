@@ -121,10 +121,13 @@ To use "emacsclient" as a default in each Julia REPL, call `julia-repl-use-emacs
 (add-hook 'julia-repl-hook #'julia-repl-use-emacsclient)
 ```
 
+## More colors
+Julia uses more colors than the ones supported by `term` by default. To get the full range of colors, use [eterm-256color](https://github.com/dieggsy/eterm-256color), available from MELPA.
+
 ## Limitations
 
 See the [issues](https://github.com/tpapp/julia-repl/issues).
 
 ## Comparison to ESS
 
-A well-known alternative is [ESS](https://ess.r-project.org/), which also supports Julia. `julia-repl` was written because I could not use the debugger from ESS, which is based on `comint`, and thus does not allow a fully functioning terminal. Also, relying on the interactive features of the Julia REPL implies that I would not need to change this library to incorporate extensions and changes that rely on the terminal.
+A well-known alternative is [ESS](https://ess.r-project.org/), which also supports Julia. ESS is however based on `comint`, which does not allow a fully functioning terminal and therefore does not support the Julia REPL modes (shell, Pkg, debuggers...) and features. `julia-repl` is instead based on `term`, and so gets all the features from Julia's native REPL for free.
