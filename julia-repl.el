@@ -522,17 +522,22 @@ this with a prefix argument ARG."
 
 
 (defun julia-repl-includet-buffer ()
-  "Attempts to include a buffer via Revise's includet.  If a buffer does not correspond to a file, the function does nothing.  If a buffer corresponds to a file and is not saved, the function prompts the user to save.  If the user refuses to save the file, nothing happen."
+  "Attempts to include a buffer via ‘Revise.includet’.
+
+If a buffer does not correspond to a file, the function does nothing, just shows a message.
+
+If a buffer corresponds to a file and is not saved, the function prompts the user to save.  If the user declines to save an unsaved file, the command is still run if the file otherwise exists, in which case ‘Revise’ will load it later when saved."
   (interactive)
   (let* ((file buffer-file-name))
-    (when (and file (buffer-modified-p))
-      (if (y-or-n-p "Buffer modified, save? ")
-          (save-buffer)
-        (setq file nil)))
     (if file
-	(julia-repl--send-string (concat "Revise.includet(\"" file "\");"))
-      (message "buffer has no file or not saved"))))
-
+        (progn
+          (when (buffer-modified-p)
+            (if (y-or-n-p "Buffer modified, save? ")
+                (save-buffer)
+              (unless (file-exists-p file)
+                (message "need to save the file first"))))
+          (julia-repl--send-string (concat "Revise.includet(\"" file "\");")))
+      (message "buffer does not correspond to a file"))))
 
 (defun julia-repl-doc ()
   "Documentation for symbol at point."
