@@ -537,7 +537,7 @@ If a buffer corresponds to a file and is not saved, the function prompts the use
     (if file
         (progn
           (when (buffer-modified-p)
-            (if (y-or-n-p "Buffer modified, save? ")
+            (if (or julia-repl-save-buffer-on-send (y-or-n-p "Buffer modified, save? "))
                 (save-buffer)
               (unless (file-exists-p file)
                 (message "need to save the file first"))))
