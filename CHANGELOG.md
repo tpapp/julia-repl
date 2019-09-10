@@ -1,3 +1,13 @@
+# 1.2.0
+
+- <kbd>C-c C-t</kbd> will include buffer with `Revise.includet` (@wraith1995)
+
+- setting `julia-repl-save-buffer-on-send` to `t` will save always save buffers without asking before `include` and `includet` (@antoine-levitt)
+
+- explain how to get more colors with [eterm-256color](https://github.com/dieggsy/eterm-256color) in the readme (@antoine-levitt)
+
+- various minor fixes
+
 # 1.1.0
 
 - Add `julia-repl-set-julia-editor` and `julia-repl-use-emacsclient` to set the editor (@dellison)
