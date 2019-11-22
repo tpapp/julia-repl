@@ -123,7 +123,18 @@ To use "emacsclient" as a default in each Julia REPL, call `julia-repl-use-emacs
 ```
 
 ## More colors
+
 Julia uses more colors than the ones supported by `term` by default. To get the full range of colors, use [eterm-256color](https://github.com/dieggsy/eterm-256color), available from MELPA.
+
+## Note for Windows users
+
+`ansi-term` is **not supported** on some (most?) Windows versions of Emacs. It has been confirmed to work with Emacs running in Cygwin. You can test whether your version works with `M-x ansi-term`; if this errors then this package will **not** work for you.
+
+Cygwin may require some rewriting of paths for `include` to work. After loading this package, customize the rewrite rules as
+```emacs-lisp
+(setq julia-repl-path-rewrite-rules julia-repl-cygwin-path-rewrite-rules)
+```
+as a reasonable default, or write custom rules for `julia-repl-path-rewrites`.
 
 ## Limitations
 

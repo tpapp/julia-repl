@@ -43,6 +43,7 @@
 (require 'subr-x)
 (require 'cl-lib)
 (require 'compile)
+(require 's)
 (require 'seq)
 
 ;;
@@ -80,6 +81,24 @@ Note that this affects all buffers using the ‘ansi-term’ map."
 (defcustom julia-repl-save-buffer-on-send nil
   "When non-nil, save buffer without prompting on send."
   :type 'boolean
+  :group 'julia-repl)
+
+(defcustom julia-repl-path-rewrite-rules nil
+  "A list of rewrite rules applied to paths sent with ‘include’ and similar.
+
+Each rule should be a function that is called with a path, in the given order. If the function returns ‘nil’, the next one is tried, otherwise the result is used as the rewritten path.
+
+This can be used a workaround, usually necessary on non-Unix systems. Eg for Cygwin-based Windows, use
+
+   (setq julia-repl-path-rewrite-rules julia-repl-cygwin-path-rewrite-rules)
+
+in your Emacs init file after loading this package."
+  :type 'list
+  :group 'julia-repl)
+
+(defcustom julia-repl-path-cygwin-prefix "c:/cygwin64"
+  "Prepended to paths by some Cygwin rewrite rules when no other information is available."
+  :type 'string
   :group 'julia-repl)
 
 ;;
@@ -435,6 +454,42 @@ This is the standard entry point for using this package."
   (switch-to-buffer-other-window (julia-repl-inferior-buffer)))
 
 ;;
+;; path rewrites
+;;
+
+(defun julia-repl--path-rewrite (path rules)
+  "Call each rule (function) in ‘rules’ with ‘path’. When the
+result is non-nil, return that and terminate, when all rules are
+tested return ‘path’ unchanged."
+  (let ((result nil))
+    (while (and (not result) rules)
+      (setf result (funcall (car rules) path)
+            rules (cdr rules)))
+    (if result
+        result
+      path)))
+
+(defun julia-repl--cygwin-replace-cygdrive (path)
+  "Rewrite ‘/cygdrive/c/something’ to ‘c:/something’."
+  (let ((m (s-match-strings-all "^/cygdrive/\\([A-Za-z]\\)\\(/.*\\)$" path)))
+    (when m
+      (let ((m1 (first m)))
+        (s-concat (second m1) ":" (third m1))))))
+
+(defun julia-repl--cygwin-add-drive (path)
+  "When the path does not start with a Windows drive letter,
+prepend ‘julia-repl-path-cygwin-prefix’."
+  (unless (s-matches? "^[A-Za-z]:/" path)
+    (s-concat julia-repl-path-cygwin-prefix path)))
+
+(defconst julia-repl-cygwin-path-rewrite-rules
+  (list #'julia-repl--cygwin-replace-cygdrive
+        #'julia-repl--cygwin-add-drive)
+  "Default list of rewrite rules for Cygwin. Use as a starting
+  point, you may need to copy and modify this. See
+  ‘julia-repl-path-cygwin-prefix’.")
+
+;;
 ;; sending to the REPL
 ;;
 
@@ -522,7 +577,9 @@ this with a prefix argument ARG."
         (setq file nil)))
     (julia-repl--send-string
      (if file
-         (concat "include(\"" file "\");")
+         (concat "include(\""
+                 (julia-repl--path-rewrite file julia-repl-path-rewrite-rules)
+                 "\");")
        (buffer-substring-no-properties (point-min) (point-max))))))
 
 
@@ -541,7 +598,9 @@ If a buffer corresponds to a file and is not saved, the function prompts the use
                 (save-buffer)
               (unless (file-exists-p file)
                 (message "need to save the file first"))))
-          (julia-repl--send-string (concat "Revise.includet(\"" file "\");")))
+          (julia-repl--send-string (concat "Revise.includet(\""
+                                           (julia-repl--path-rewrite file julia-repl-path-rewrite-rules)
+                                           "\");")))
       (message "buffer does not correspond to a file"))))
 
 (defun julia-repl-doc ()
