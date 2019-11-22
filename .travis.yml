@@ -12,7 +12,7 @@ branches:
 
 install:
   - if [ "$EMACS" = 'emacs26' ]; then
-        sudo add-apt-repository ppa:kelleyk/emacs &&
+        sudo add-apt-repository -y ppa:kelleyk/emacs &&
         sudo apt-get update &&
         sudo apt-get -qq -f install &&
         sudo apt-get -qq install emacs26 emacs26-el;
