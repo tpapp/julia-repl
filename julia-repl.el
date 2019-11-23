@@ -473,8 +473,8 @@ tested return ‘path’ unchanged."
   "Rewrite ‘/cygdrive/c/something’ to ‘c:/something’."
   (let ((m (s-match-strings-all "^/cygdrive/\\([A-Za-z]\\)\\(/.*\\)$" path)))
     (when m
-      (let ((m1 (first m)))
-        (s-concat (second m1) ":" (third m1))))))
+      (let ((m1 (cl-first m)))
+        (s-concat (cl-second m1) ":" (cl-third m1))))))
 
 (defun julia-repl--cygwin-add-drive (path)
   "When the path does not start with a Windows drive letter,
