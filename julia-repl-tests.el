@@ -13,4 +13,4 @@
                  "c:/cygwin64/home/PK/thread_buffers.jl"))
   (should (equal (julia-repl--path-rewrite "/cygdrive/c/Users/PK/another.jl"
                                            julia-repl-cygwin-path-rewrite-rules)
-                 "/cygdrive/c/Users/PK/another.jl")))
+                 "c:/Users/PK/another.jl")))
