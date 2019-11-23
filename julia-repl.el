@@ -3,8 +3,8 @@
 ;; Copyright (C) 2016  Tamas K. Papp
 ;; Author: Tamas Papp <tkpapp@gmail.com>
 ;; Keywords: languages
-;; Version: 0.0.1
-;; Package-Requires: ((emacs "25"))
+;; Version: 0.1.0
+;; Package-Requires: ((emacs "25") (s "1.12"))
 ;; URL: https://github.com/tpapp/julia-repl
 
 ;;; Usage:
@@ -613,7 +613,9 @@ If a buffer corresponds to a file and is not saved, the function prompts the use
   (interactive)
   (if-let ((directory (file-name-directory (buffer-file-name))))
       (progn
-	(julia-repl--send-string (concat "cd(\"" directory "\")"))
+	(julia-repl--send-string (concat "cd(\""
+                                         (julia-repl--path-rewrite directory julia-repl-path-rewrite-rules)
+                                         "\")"))
 	(with-current-buffer (julia-repl-inferior-buffer) (cd directory)))
     (warn "buffer not associated with a file")))
 
