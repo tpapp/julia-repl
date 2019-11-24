@@ -17,13 +17,13 @@ install:
         sudo apt-get -qq -f install &&
         sudo apt-get -qq install emacs26 emacs26-el;
     fi
-  - echo "(package-initialize)" > ~/.emacs.el
+  - echo "(package-initialize)" > setup.el
 
 script:
   - $EMACS --version
-  - $EMACS --batch --eval "(progn (add-to-list 'package-archives (cons \"melpa\" \"https://melpa.org/packages/\") t) (package-refresh-contents) (package-install 's))"
-  - $EMACS --batch -L . --eval "(setq byte-compile-error-on-warn t)" -f batch-byte-compile julia-repl.el
-  - $EMACS --batch -L . -l ert -l julia-repl-tests.el -f ert-run-tests-batch-and-exit;
+  - $EMACS --batch -L . -l "setup" --eval "(progn (add-to-list 'package-archives (cons \"melpa\" \"https://melpa.org/packages/\") t) (package-refresh-contents) (package-install 's))"
+  - $EMACS --batch -L . -l "setup" --eval "(setq byte-compile-error-on-warn t)" -f batch-byte-compile julia-repl.el
+  - $EMACS --batch -L . -l "setup" -l ert -l julia-repl-tests.el -f ert-run-tests-batch-and-exit;
 
 notifications:
   email: false
