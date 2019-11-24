@@ -1,4 +1,4 @@
-language: c
+language: minimal
 sudo: required
 dist: bionic
 env:
@@ -20,8 +20,9 @@ install:
 
 script:
   - $EMACS --version
-  - $EMACS --batch -L . --eval "(setq byte-compile-error-on-warn t)" -f batch-byte-compile julia-repl.el
-  - $EMACS --batch -L . -l ert -l julia-repl-tests.el -f ert-run-tests-batch-and-exit;
+  - $EMACS --batch -L . -l ci-cfg -l ci-deps
+  - $EMACS --batch -L . -l ci-cfg --eval "(setq byte-compile-error-on-warn t)" -f batch-byte-compile julia-repl.el
+  - $EMACS --batch -L . -l ci-cfg -l ert -l julia-repl-tests.el -f ert-run-tests-batch-and-exit;
 
 notifications:
   email: false

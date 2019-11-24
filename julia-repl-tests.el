@@ -7,5 +7,10 @@
 (require 'julia-repl)
 (require 'ert)
 
-(ert-deftest dummy-test ()
-  (should t))
+(ert-deftest julia-repl-cygwin-rewrite-test ()
+  (should (equal (julia-repl--path-rewrite "/home/PK/thread_buffers.jl"
+                                           julia-repl-cygwin-path-rewrite-rules)
+                 "c:/cygwin64/home/PK/thread_buffers.jl"))
+  (should (equal (julia-repl--path-rewrite "/cygdrive/c/Users/PK/another.jl"
+                                           julia-repl-cygwin-path-rewrite-rules)
+                 "c:/Users/PK/another.jl")))
