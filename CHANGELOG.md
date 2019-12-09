@@ -1,5 +1,7 @@
 # Unreleased
 
+- add a function and keybinding (`C-c C-l`) to list methods.
+
 - make `C-c C-d` work with symbols that have a module path
 
 # 1.2.0
