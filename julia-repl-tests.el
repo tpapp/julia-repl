@@ -14,3 +14,21 @@
   (should (equal (julia-repl--path-rewrite "/cygdrive/c/Users/PK/another.jl"
                                            julia-repl-cygwin-path-rewrite-rules)
                  "c:/Users/PK/another.jl")))
+
+(cl-defmacro julia-repl--buffer (contents position &body body)
+  "Make a temporary buffer with ‘contents’ and point at ‘position’, then run ‘body’."
+  `(with-temp-buffer
+     (julia-mode)
+     (insert ,contents)
+     (goto-char ,position)
+     ,@body))
+
+(defun julia-repl--symbol-extraction (contents position)
+  "Extract symbols in reverse order from a temporary buffer with
+‘contents’ and point at ‘position’."
+  (julia-repl--buffer contents position (julia-repl--reverse-symbols-at-point)))
+
+(ert-deftest julia-repl-symbol-extraction-test ()
+  (should (equal (julia-repl--symbol-extraction "Foo.bar.baz" 13) '("baz" "bar" "Foo")))
+  (should (equal (julia-repl--symbol-extraction "Foo.bar.baz " 12) '("baz" "bar" "Foo")))
+  (should (equal (julia-repl--symbol-extraction "Foo.bar.baz " 14) nil)))

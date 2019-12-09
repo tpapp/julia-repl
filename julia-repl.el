@@ -603,10 +603,24 @@ If a buffer corresponds to a file and is not saved, the function prompts the use
                                            "\");")))
       (message "buffer does not correspond to a file"))))
 
+(defun julia-repl--reverse-symbols-at-point ()
+  "Return the a list of symbol at point (eg a variable, function, or module
+name), separated by dots, as a list in reverse order."
+  (let ((bounds (bounds-of-thing-at-point 'symbol)))
+    (when bounds
+      (cl-destructuring-bind (start1 . end1) bounds
+        (let ((symbol1 (buffer-substring-no-properties start1 end1))
+              (symbols-before-dot (and (< (+ (point-min) 2) start1)
+                                       (equal (buffer-substring-no-properties (- start1 1) start1) ".")
+                                       (save-excursion
+                                         (goto-char (- start1 2))
+                                         (julia-repl--reverse-symbols-at-point)))))
+          (cons symbol1 symbols-before-dot))))))
+
 (defun julia-repl-doc ()
   "Documentation for symbol at point."
   (interactive)
-  (julia-repl--send-string (concat "@doc " (thing-at-point 'symbol t))))
+  (julia-repl--send-string (concat "@doc " (s-join "." (reverse (julia-repl--reverse-symbols-at-point))))))
 
 (defun julia-repl-cd ()
   "Change directory to the directory of the current buffer (if applicable)."

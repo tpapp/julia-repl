@@ -1,3 +1,7 @@
+# Unreleased
+
+- make `C-c C-d` work with symbols that have a module path
+
 # 1.2.0
 
 - <kbd>C-c C-t</kbd> will include buffer with `Revise.includet` (@wraith1995)
