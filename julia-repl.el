@@ -603,19 +603,42 @@ If a buffer corresponds to a file and is not saved, the function prompts the use
                                            "\");")))
       (message "buffer does not correspond to a file"))))
 
-(defun julia-repl--reverse-symbols-at-point ()
-  "Return the a list of symbol at point (eg a variable, function, or module
-name), separated by dots, as a list in reverse order."
+(defun julia-repl--symbols-after-dot ()
+  "Dot-separated symbols after point (which should be on a dot), as a list."
+  (when (eq (char-after) ?.)
+    (forward-char)
+    (let ((bounds (bounds-of-thing-at-point 'symbol)))
+      (when bounds
+        (cl-destructuring-bind (start1 . end1) bounds
+          (let ((symbol1 (buffer-substring-no-properties start1 end1)))
+            (goto-char (1+ end1))
+            (cons symbol1 (julia-repl--symbols-after-dot))))))))
+
+(defun julia-repl--symbols-before-dot ()
+  "Dot-separated symbols before point (which should be on a dot), as a list, in reverse order."
+  (when (eq (char-after) ?.)
+    (backward-char)
+    (let ((bounds (bounds-of-thing-at-point 'symbol)))
+      (when bounds
+        (cl-destructuring-bind (start1 . end1) bounds
+          (let ((symbol1 (buffer-substring-no-properties start1 end1)))
+            (goto-char (1- start1))
+            (cons symbol1 (julia-repl--symbols-before-dot))))))))
+
+(defun julia-repl--symbols-at-point ()
+  "Return the a list of symbols at point (eg a variable, function, or module
+name), separated by dots, as a list."
   (let ((bounds (bounds-of-thing-at-point 'symbol)))
     (when bounds
       (cl-destructuring-bind (start1 . end1) bounds
         (let ((symbol1 (buffer-substring-no-properties start1 end1))
-              (symbols-before-dot (and (< (+ (point-min) 2) start1)
-                                       (equal (buffer-substring-no-properties (- start1 1) start1) ".")
-                                       (save-excursion
-                                         (goto-char (- start1 2))
-                                         (julia-repl--reverse-symbols-at-point)))))
-          (cons symbol1 symbols-before-dot))))))
+              (symbols-before-dot (save-excursion
+                                    (goto-char (1- start1))
+                                    (julia-repl--symbols-before-dot)))
+              (symbols-after-dot (save-excursion
+                                   (goto-char end1)
+                                   (julia-repl--symbols-after-dot))))
+          (cl-concatenate 'list (nreverse symbols-before-dot) (list symbol1) symbols-after-dot))))))
 
 (defun julia-repl-doc ()
   "Documentation for symbol at point."

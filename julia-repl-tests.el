@@ -26,9 +26,13 @@
 (defun julia-repl--symbol-extraction (contents position)
   "Extract symbols in reverse order from a temporary buffer with
 ‘contents’ and point at ‘position’."
-  (julia-repl--buffer contents position (julia-repl--reverse-symbols-at-point)))
+  (julia-repl--buffer contents position (julia-repl--symbols-at-point)))
 
 (ert-deftest julia-repl-symbol-extraction-test ()
-  (should (equal (julia-repl--symbol-extraction "Foo.bar.baz" 13) '("baz" "bar" "Foo")))
-  (should (equal (julia-repl--symbol-extraction "Foo.bar.baz " 12) '("baz" "bar" "Foo")))
-  (should (equal (julia-repl--symbol-extraction "Foo.bar.baz " 14) nil)))
+  (let ((symbols '("Foo" "bar" "baz")))
+    (should (equal (julia-repl--symbol-extraction "Foo.bar.baz" 13) symbols))
+    (should (equal (julia-repl--symbol-extraction "Foo.bar.baz " 12) symbols))
+    (should (equal (julia-repl--symbol-extraction "Foo.bar.baz " 14) nil))
+    (should (equal (julia-repl--symbol-extraction "Foo.bar.baz " 6) symbols))
+    (should (equal (julia-repl--symbol-extraction "Foo.bar.baz.( " 12) symbols))
+    (should (equal (julia-repl--symbol-extraction "Foo.bar.baz.( " 6) symbols))))
