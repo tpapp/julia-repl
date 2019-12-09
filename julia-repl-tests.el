@@ -18,7 +18,7 @@
 (cl-defmacro julia-repl--buffer (contents position &body body)
   "Make a temporary buffer with ‘contents’ and point at ‘position’, then run ‘body’."
   `(with-temp-buffer
-     (julia-mode)
+     (julia-repl-mode)
      (insert ,contents)
      (goto-char ,position)
      ,@body))
