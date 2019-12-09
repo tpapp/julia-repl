@@ -643,7 +643,7 @@ name), separated by dots, as a list."
 (defun julia-repl-doc ()
   "Documentation for symbol at point."
   (interactive)
-  (julia-repl--send-string (concat "@doc " (s-join "." (reverse (julia-repl--reverse-symbols-at-point))))))
+  (julia-repl--send-string (concat "@doc " (s-join "." (julia-repl--symbols-at-point)))))
 
 (defun julia-repl-cd ()
   "Change directory to the directory of the current buffer (if applicable)."
