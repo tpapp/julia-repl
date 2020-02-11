@@ -548,6 +548,23 @@ and after."
         (-send-string (thing-at-point 'line t))
         (forward-line)))))
 
+(defun julia-repl-send-paragraph ()
+  "Send the current paragraph to the Julia REPL term buffer."
+  (interactive)
+  (let ((beg (save-excursion (backward-paragraph) (point)))
+        (end (save-excursion (forward-paragraph) (point))))
+    (julia-repl--send-string
+     (buffer-substring-no-properties beg end))))
+
+(defun julia-repl-send-function ()
+  "Send the current function to the Julia REPL term buffer."
+  (interactive)
+  (let ((beg (save-excursion (when (beginning-of-defun) (point))))
+        (end (save-excursion (end-of-defun) (point))))
+    (when (and beg (< beg end))
+      (julia-repl--send-string
+       (buffer-substring-no-properties beg end)))))
+
 (defun julia-repl-edit ()
   "Call @edit on the expression.
 
@@ -696,6 +713,7 @@ When called with a prefix argument, activate the home project."
     (,(kbd "C-c C-z")    . julia-repl)
     (,(kbd "<C-return>") . julia-repl-send-line)
     (,(kbd "C-c C-e")    . julia-repl-edit)
+    (,(kbd "C-c C-f")    . julia-repl-send-function)
     (,(kbd "C-c C-d")    . julia-repl-doc)
     (,(kbd "C-c C-m")    . julia-repl-macroexpand)
     (,(kbd "C-c C-s")    . julia-repl-prompt-set-inferior-buffer-name-suffix)
