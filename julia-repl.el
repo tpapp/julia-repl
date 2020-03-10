@@ -645,6 +645,11 @@ name), separated by dots, as a list."
   (interactive)
   (julia-repl--send-string (concat "@doc " (s-join "." (julia-repl--symbols-at-point)))))
 
+(defun julia-repl-list-methods ()
+  "List methods for symbol at point."
+  (interactive)
+  (julia-repl--send-string (concat "methods(" (s-join "." (julia-repl--symbols-at-point)) ")")))
+
 (defun julia-repl-cd ()
   "Change directory to the directory of the current buffer (if applicable)."
   (interactive)
@@ -690,18 +695,19 @@ When called with a prefix argument, activate the home project."
 (define-minor-mode julia-repl-mode
   "Minor mode for interacting with a Julia REPL running inside a term."
   nil ">"
-  `((,(kbd "C-c C-c")    . julia-repl-send-region-or-line)
+  `((,(kbd "C-c C-a")    . julia-repl-activate-parent)
     (,(kbd "C-c C-b")    . julia-repl-send-buffer)
-    (,(kbd "C-c C-t")    . julia-repl-includet-buffer)
-    (,(kbd "C-c C-z")    . julia-repl)
-    (,(kbd "<C-return>") . julia-repl-send-line)
-    (,(kbd "C-c C-e")    . julia-repl-edit)
+    (,(kbd "C-c C-c")    . julia-repl-send-region-or-line)
     (,(kbd "C-c C-d")    . julia-repl-doc)
+    (,(kbd "C-c C-e")    . julia-repl-edit)
+    (,(kbd "C-c C-l")    . julia-repl-list-methods)
     (,(kbd "C-c C-m")    . julia-repl-macroexpand)
-    (,(kbd "C-c C-s")    . julia-repl-prompt-set-inferior-buffer-name-suffix)
-    (,(kbd "C-c C-v")    . julia-repl-prompt-set-executable-key)
     (,(kbd "C-c C-p")    . julia-repl-cd)
-    (,(kbd "C-c C-a")    . julia-repl-activate-parent))
+    (,(kbd "C-c C-s")    . julia-repl-prompt-set-inferior-buffer-name-suffix)
+    (,(kbd "C-c C-t")    . julia-repl-includet-buffer)
+    (,(kbd "C-c C-v")    . julia-repl-prompt-set-executable-key)
+    (,(kbd "C-c C-z")    . julia-repl)
+    (,(kbd "<C-return>") . julia-repl-send-line))
   (when-let ((filename (buffer-file-name)))
     (setq-local default-directory (file-name-directory filename))))
 
