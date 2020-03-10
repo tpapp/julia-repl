@@ -26,18 +26,21 @@ If you want to use a Julia executable other than `julia` in your path, see [belo
 
 | key           | action                                                      |
 |---------------|-------------------------------------------------------------|
-| `C-c C-c`     | send region (when applicable) or line to REPL               |
-| `C-c C-b`     | send whole buffer to REPL (using include)                   |
-| `C-c C-t`     | send whole buffer to REPL (using Revise.includet)           |
-| `C-u C-c C-b` | send whole buffer to REPL (directly)                        |
-| `C-c C-z`     | raise the REPL or create a new one                          |
-| `C-RET`       | send line to REPL (without bracketed paste)                 |
-| `C-c C-e`     | invoke `@edit` on region (when applicable) or line          |
-| `C-c C-d`     | invoke `@doc` on symbol                                     |
-| `C-c C-m`     | expand macro                                                |
-| `C-c C-p`     | change directory to that of the buffer                      |
 | `C-c C-a`     | activate if there is a `Project.toml` in parent directories |
 | `C-u C-c C-a` | activate home project                                       |
+| `C-c C-b`     | send whole buffer to REPL (using include)                   |
+| `C-u C-c C-b` | send whole buffer to REPL (directly)                        |
+| `C-c C-c`     | send region (when applicable) or line to REPL               |
+| `C-c C-d`     | invoke `@doc` on symbol                                     |
+| `C-c C-e`     | invoke `@edit` on region (when applicable) or line          |
+| `C-c C-l`     | list methods of a function                                  |
+| `C-c C-m`     | expand macro                                                |
+| `C-c C-p`     | change directory to that of the buffer                      |
+| `C-c C-s`     | prompt for buffer name suffix                               |
+| `C-c C-t`     | send whole buffer to REPL (using Revise.includet)           |
+| `C-c C-v`     | prompt for Julia executable                                 |
+| `C-c C-z`     | raise the REPL or create a new one                          |
+| `C-RET`       | send line to REPL (without bracketed paste)                 |
 
 All actions that send something to the REPL terminate with a **newline**, triggering evaluation. If you want to avoid sending a newline (eg maybe because you want to edit an expression), use prefix arguments (`C--` or `C-u`, currently both have the same effect). This of course does not apply to `C-c C-b`.
 
