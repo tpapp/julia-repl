@@ -1,4 +1,4 @@
-;;; julia-repl.el --- A minor mode for a Julia REPL -*- lexical-binding:t -*-
+;;; julia-repl.el --- A minor mode for a Julia REPL -*- lexical-binding:t; no-byte-compile:t -*-
 
 ;; Copyright (C) 2016  Tamas K. Papp
 ;; Author: Tamas Papp <tkpapp@gmail.com>
@@ -142,7 +142,7 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
                                               name)
   (if-let ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
       (with-current-buffer inferior-buffer
-        (assert (eq major-mode 'term-mode) t "Expected term-mode. Changed mode or backends?"))
+        (cl-assert (eq major-mode 'term-mode) nil "Expected term-mode. Changed mode or backends?"))
       (when (term-check-proc inferior-buffer)
         inferior-buffer)))
 
@@ -179,35 +179,36 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
 
 ;;; vterm
 
-(eval-after-load 'vterm
-  '(progn
-     (cl-defstruct julia-repl--buffer-vterm
-       "Terminal backend using ‘vterm’, which needs to be installed and loaded.")
+(with-eval-after-load 'vterm
 
-     (cl-defmethod julia-repl--locate-live-buffer ((_terminal-backend julia-repl--buffer-vterm)
-                                                   name)
-       (if-let ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
-           (with-current-buffer inferior-buffer
-             (assert (eq major-mode 'vterm-mode) t "Expected vterm-mode. Changed mode or backends?")
-             ;; cf https://github.com/akermu/emacs-libvterm/issues/270
-             (when (let ((proc (buffer-local-value 'vterm--process inferior-buffer)))
-                     (and proc (memq (process-status proc) '(run stop open listen connect))))
-               inferior-buffer))))
+  (cl-defstruct julia-repl--buffer-vterm
+    "Terminal backend using ‘vterm’, which needs to be installed and loaded.")
 
-     (cl-defmethod julia-repl--make-buffer ((_terminal-backend julia-repl--buffer-vterm)
-                                            name executable-path switches)
-       (let* ((vterm-shell (apply #'concat executable-path " " switches))
-              (vterm-buffer (generate-new-buffer (julia-repl--add-earmuffs name))))
-         (with-current-buffer vterm-buffer
-           (setq-local vterm-kill-buffer-on-exit t) ; no zombies
-           (vterm-mode))))
+  (cl-defmethod julia-repl--locate-live-buffer ((_terminal-backend julia-repl--buffer-vterm)
+                                                name)
+    (if-let ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
+        (with-current-buffer inferior-buffer
+          (cl-assert (eq major-mode 'vterm-mode) nil "Expected vterm-mode. Changed mode or backends?")
+          ;; cf https://github.com/akermu/emacs-libvterm/issues/270
+          (when (let ((proc (buffer-local-value 'vterm--process inferior-buffer)))
+                  (and proc (memq (process-status proc) '(run stop open listen connect))))
+            inferior-buffer))))
 
-     (cl-defmethod julia-repl--send-to-backend ((_terminal-backend julia-repl--buffer-vterm)
-                                                buffer string paste-p ret-p)
-       (with-current-buffer buffer
-         (vterm-send-string string paste-p)
-         (when ret-p
-           (vterm-send-return))))))
+  (cl-defmethod julia-repl--make-buffer ((_terminal-backend julia-repl--buffer-vterm)
+                                         name executable-path switches)
+    (let ((vterm-buffer (generate-new-buffer (julia-repl--add-earmuffs name))))
+      (with-current-buffer vterm-buffer
+        (let ((vterm-shell (apply #'concat executable-path " " switches))
+              (vterm-kill-buffer-on-exit t))
+          (vterm-mode)))
+      vterm-buffer))
+
+  (cl-defmethod julia-repl--send-to-backend ((_terminal-backend julia-repl--buffer-vterm)
+                                             buffer string paste-p ret-p)
+    (with-current-buffer buffer
+      (vterm-send-string string paste-p)
+      (when ret-p
+        (vterm-send-return)))))
 
 ;;
 ;; global variables
