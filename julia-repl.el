@@ -136,6 +136,8 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
 (cl-defmethod julia-repl--locate-live-buffer ((_terminal-backend julia-repl--buffer-ansi-term)
                                               name)
   (if-let ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
+      (with-current-buffer inferior-buffer
+        (assert (eq major-mode 'term-mode) t "Expected term-mode. Changed mode or backends?"))
       (when (term-check-proc inferior-buffer)
         inferior-buffer)))
 
@@ -180,6 +182,7 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
                                                    name)
        (if-let ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
            (with-current-buffer inferior-buffer
+             (assert (eq major-mode 'vterm-mode) t "Expected vterm-mode. Changed mode or backends?")
              ;; cf https://github.com/akermu/emacs-libvterm/issues/270
              (when (and vterm--process
                         (memq (process-status vterm--process) '(run stop open listen connect)))
