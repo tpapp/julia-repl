@@ -113,21 +113,34 @@ This matches the buffer name (eg created by ‘make-term’)."
 
 ;;;; terminal backends
 
+;;; generic api
+
+(cl-defgeneric julia-repl--locate-live-buffer (terminal-backend name)
+  "Return the inferior buffer with NAME if it has a running REPL, otherwise NIL.")
+
+(cl-defgeneric julia-repl--make-buffer (terminal-backend name executable-path switches)
+    "Make and return a new inferior buffer.
+
+Buffer will be named with NAME (earmuffs added by this function), starting julia using EXECUTABLE-PATH with SWITCHES (a list of strings).")
+
+(cl-defgeneric julia-repl--send-to-backend (terminal-backend buffer string paste-p ret-p)
+  "Send a string to BUFFER using the given backend.
+
+When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate with an extra newline.")
+
+;;;; ansi-term
+
 (cl-defstruct julia-repl--buffer-ansi-term
   "Terminal backend via ‘ansi-term’, available in Emacs.")
 
 (cl-defmethod julia-repl--locate-live-buffer ((_terminal-backend julia-repl--buffer-ansi-term)
                                               name)
-  "Return the inferior buffer with NAME if it has a running REPL, otherwise NIL."
   (if-let ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
       (when (term-check-proc inferior-buffer)
         inferior-buffer)))
 
 (cl-defmethod julia-repl--make-buffer ((_terminal-backend julia-repl--buffer-ansi-term)
                                        name executable-path switches)
-  "Make and return a new inferior buffer.
-
-Buffer will be named with NAME (earmuffs added by this function), starting julia using EXECUTABLE-PATH with SWITCHES."
   (let ((inferior-buffer (apply #'make-term name executable-path nil switches)))
     (with-current-buffer inferior-buffer
       (mapc (lambda (k)
@@ -156,6 +169,36 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
     (when paste-p                       ; bracketed paste stop
       (term-send-raw-string "\e[201~"))))
 
+;;; vterm
+
+(eval-after-load 'vterm
+  '(progn
+     (cl-defstruct julia-repl--buffer-vterm
+       "Terminal backend using ‘vterm’, which needs to be installed and loaded.")
+
+     (cl-defmethod julia-repl--locate-live-buffer ((_terminal-backend julia-repl--buffer-vterm)
+                                                   name)
+       (if-let ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
+           (with-current-buffer inferior-buffer
+             ;; cf https://github.com/akermu/emacs-libvterm/issues/270
+             (when (and vterm--process
+                        (memq (process-status vterm--process) '(run stop open listen connect)))
+               inferior-buffer))))
+
+     (cl-defmethod julia-repl--make-buffer ((_terminal-backend julia-repl--buffer-vterm)
+                                            name executable-path switches)
+       (let* ((vterm-shell (apply #'concat executable-path " " switches))
+              (vterm-buffer (generate-new-buffer (julia-repl--add-earmuffs name))))
+         (with-current-buffer vterm-buffer
+           (setq-local vterm-kill-buffer-on-exit t) ; no zombies
+           (vterm-mode))))
+
+     (cl-defmethod julia-repl--send-to-backend ((_terminal-backend julia-repl--buffer-vterm)
+                                                buffer string paste-p ret-p)
+       (with-current-buffer buffer
+         (vterm-send-string string paste-p)
+         (when ret-p
+           (vterm-send-return))))))
 
 ;;
 ;; global variables
@@ -501,10 +544,13 @@ A closing newline is sent according to NO-NEWLINE:
   3. otherwise no newline.
 
 Unless NO-BRACKETED-PASTE, bracketed paste control sequences are used."
+  (when (eq no-newline 'prefix)
+    (setq no-newline current-prefix-arg))
   (let ((inferior-buffer (julia-repl-inferior-buffer)))
     (display-buffer inferior-buffer)
     (julia-repl--send-to-backend julia-repl-terminal-backend
-                                 inferior-buffer string (not no-newline) (not no-bracketed-paste))))
+                                 inferior-buffer string (not no-bracketed-paste)
+                                 (not no-newline))))
 
 (defun julia-repl-send-line ()
   "Send the current line to the Julia REPL term buffer.
