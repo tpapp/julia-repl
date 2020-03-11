@@ -114,7 +114,7 @@ This matches the buffer name (eg created by ‘make-term’)."
 ;;;; terminal backends
 
 (cl-defstruct julia-repl--buffer-ansi-term
-  )
+  "Terminal backend via ‘ansi-term’, available in Emacs.")
 
 (cl-defmethod julia-repl--locate-live-buffer ((_terminal-backend julia-repl--buffer-ansi-term)
                                               name)
@@ -125,6 +125,9 @@ This matches the buffer name (eg created by ‘make-term’)."
 
 (cl-defmethod julia-repl--make-buffer ((_terminal-backend julia-repl--buffer-ansi-term)
                                        name executable-path switches)
+  "Make and return a new inferior buffer.
+
+Buffer will be named with NAME (earmuffs added by this function), starting julia using EXECUTABLE-PATH with SWITCHES."
   (let ((inferior-buffer (apply #'make-term name executable-path nil switches)))
     (with-current-buffer inferior-buffer
       (mapc (lambda (k)
@@ -136,12 +139,14 @@ This matches the buffer name (eg created by ‘make-term’)."
       (setq-local term-suppress-hard-newline t)  ; reflow text
       (setq-local term-scroll-show-maximum-output t)
       ;; do I need this?
-      (setq-local term-scroll-to-bottom-on-output t)
-      )
+      (setq-local term-scroll-to-bottom-on-output t))
     inferior-buffer))
 
 (cl-defmethod julia-repl--send-to-backend ((_terminal-backend julia-repl--buffer-ansi-term)
                                            buffer string paste-p ret-p)
+  "Send a string to BUFFER using the given backend.
+
+When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate with an extra newline."
   (with-current-buffer buffer
     (when paste-p                       ; bracketed paste start
       (term-send-raw-string "\e[200~"))
@@ -149,7 +154,8 @@ This matches the buffer name (eg created by ‘make-term’)."
     (when ret-p                         ; return
       (term-send-raw-string "\^M"))
     (when paste-p                       ; bracketed paste stop
-        (term-send-raw-string "\e[201~"))))
+      (term-send-raw-string "\e[201~"))))
+
 
 ;;
 ;; global variables
