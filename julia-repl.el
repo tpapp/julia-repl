@@ -103,6 +103,11 @@ in your Emacs init file after loading this package."
   :type 'string
   :group 'julia-repl)
 
+(defcustom julia-repl-set-term-escape t
+  "Set the escape char C-x globally for term. Useful for switching windows, but users who do not want this globally should set it to nil."
+  :type 'boolean
+  :group 'julia-repl)
+
 ;;;; utility functions
 
 (defun julia-repl--add-earmuffs (buffer-name)
@@ -149,7 +154,8 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
               (define-key term-raw-map k (global-key-binding k)))
             julia-repl-captures)
       (term-char-mode)
-      (term-set-escape-char ?\C-x)      ; useful for switching windows
+      (when julia-repl-set-term-escape
+        (term-set-escape-char ?\C-x))      ; useful for switching windows
       (setq-local term-prompt-regexp "^(julia|shell|help\\?|(\\d+\\|debug ))>")
       (setq-local term-suppress-hard-newline t)  ; reflow text
       (setq-local term-scroll-show-maximum-output t)
