@@ -547,7 +547,7 @@ prepend ‘julia-repl-path-cygwin-prefix’."
 (defun julia-repl--send-string (string &optional no-newline no-bracketed-paste)
   "Send STRING to the Julia REPL term buffer.
 
-A closing newline is sent according to NO-NEWLINE:
+The string is trimmed, then a closing newline is sent according to NO-NEWLINE:
 
   1. NIL sends the newline,
   2. 'PREFIX sends it according to ‘current-prefix-arg’,
@@ -559,7 +559,7 @@ Unless NO-BRACKETED-PASTE, bracketed paste control sequences are used."
   (let ((inferior-buffer (julia-repl-inferior-buffer)))
     (display-buffer inferior-buffer)
     (julia-repl--send-to-backend julia-repl-terminal-backend
-                                 inferior-buffer string (not no-bracketed-paste)
+                                 inferior-buffer (s-trim string) (not no-bracketed-paste)
                                  (not no-newline))))
 
 (defun julia-repl-send-line ()
