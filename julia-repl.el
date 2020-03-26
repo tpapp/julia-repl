@@ -196,7 +196,8 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
 
   (cl-defmethod julia-repl--make-buffer ((_terminal-backend julia-repl--buffer-vterm)
                                          name executable-path switches)
-    (let ((vterm-buffer (generate-new-buffer (julia-repl--add-earmuffs name))))
+    (let ((vterm-buffer (get-buffer-create (julia-repl--add-earmuffs name)))
+          (inhibit-read-only t))
       (with-current-buffer vterm-buffer
         (let ((vterm-shell (apply #'concat executable-path " " switches))
               (vterm-kill-buffer-on-exit t))
