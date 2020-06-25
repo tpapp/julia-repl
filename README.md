@@ -20,6 +20,11 @@ Place this in your **Emacs initialization files** (eg `.emacs`):
 ```
 If you want to use a Julia executable other than `julia` in your path, see [below](#julia-executables).
 
+If you are experiencing problems with [Unicode characters](https://docs.julialang.org/en/v1/manual/unicode-input/) in the Julia REPL, try setting the relevant coding/language environment, eg
+```emacs-lisp
+(set-language-environment "UTF-8")
+```
+
 ## Usage
 
 `M-x julia-repl`, or `C-c C-z` from a buffer in which the `julia-repl` minor mode is active starts a new inferior Julia process. The keys below can be used to interact with this process.

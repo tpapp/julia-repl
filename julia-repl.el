@@ -205,7 +205,7 @@ This matches the buffer name created by ‘make-term’."
 When NIL, this was unsuccessful."
   (let* ((prefix "OK") ; prefix is used to verify that there was no error and help with extraction
          (expr (concat "print(\"" prefix
-                       "\" * normpath(joinpath(VERSION ≤ v\"0.7-\" ? JULIA_HOME : Sys.BINDIR, "
+                       "\" * normpath(joinpath(VERSION <= v\"0.7-\" ? JULIA_HOME : Sys.BINDIR, "
                        "Base.DATAROOTDIR, \"julia\", \"base\")))"))
          (switches " --history-file=no --startup-file=no -qe ")
          (maybe-basedir (shell-command-to-string
