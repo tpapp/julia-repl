@@ -495,7 +495,7 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
 
 (cl-defun julia-repl-inferior-buffer (&key (executable-key (julia-repl--get-executable-key))
                                            (suffix julia-repl-inferior-buffer-name-suffix)
-                                           (terminal-backend julia-repl-terminal-backend ))
+                                           (terminal-backend julia-repl--terminal-backend ))
   "Return the Julia REPL inferior buffer, creating one if it does not exist."
   (let* ((name (julia-repl--inferior-buffer-name executable-key suffix))
          (live-buffer (julia-repl--locate-live-buffer terminal-backend name)))
