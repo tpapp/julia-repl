@@ -121,9 +121,11 @@ See the help of `term` for more.
 
 ### Using `vterm` (experimental)
 
+Support for the vterm backend is WIP. In the long run it is hoped that it will replace `ansi-term` as the default backend for this package, fixing many outstanding issues.
+
 1. Install [`emacs-libvterm`](https://github.com/akermu/emacs-libvterm) and make sure you have a working installation (eg `M-x vterm`) should start a terminal
 
-2. Evaluate `(setq julia-repl-terminal-backend (make-julia-repl--buffer-vterm))` in your config file *after* you load `julia-repl`, but *before* you use it (and of course `vterm` should be loaded at some point). Switching terminal backends with already running Julia processes is not supported.
+2. Evaluate `(julia-repl-set-terminal-backend 'vterm)` in your config file *after* you load `julia-repl`, but *before* you use it (and of course `vterm` should be loaded at some point). Switching terminal backends with already running Julia processes is not supported.
 
 ## Using the @edit macro
 

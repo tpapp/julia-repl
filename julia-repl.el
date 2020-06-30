@@ -227,9 +227,27 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
 
 Uses function ‘compilation-shell-minor-mode’.")
 
-(defvar julia-repl-terminal-backend
+(defvar julia-repl--terminal-backend
   (make-julia-repl--buffer-ansi-term)
-  "Terminal backend. FIXME Currently experimental, only modify if you know what you are doing.")
+  "Terminal backend, for internal use. Set using `julia-repl-set-terminal-backend'.")
+
+(defun julia-repl-set-terminal-backend (backend)
+  "Set terminal backend for `julia-repl'.
+
+Valid backends are currently:
+
+- ‘ansi-term’, using the ANSI terminal built into Emacs.
+
+- ‘vterm’, which requires that vterm is installed. See URL ‘https://github.com/akermu/emacs-libvterm’."
+  (interactive "S")
+  (cl-case backend
+    ('ansi-term
+     (setq julia-repl--terminal-backend (make-julia-repl--buffer-ansi-term)))
+    ('vterm
+     (require 'vterm)
+     (setq julia-repl--terminal-backend (make-julia-repl--buffer-vterm)))
+    (otherwise
+     (error "Unrecognized backend “%s”." backend))))
 
 (defvar julia-repl-executable-records
   '((default "julia"))
