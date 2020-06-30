@@ -577,7 +577,7 @@ Unless NO-BRACKETED-PASTE, bracketed paste control sequences are used."
     (setq no-newline current-prefix-arg))
   (let ((inferior-buffer (julia-repl-inferior-buffer)))
     (display-buffer inferior-buffer)
-    (julia-repl--send-to-backend julia-repl-terminal-backend
+    (julia-repl--send-to-backend julia-repl--terminal-backend
                                  inferior-buffer (s-trim string) (not no-bracketed-paste)
                                  (not no-newline))))
 
