@@ -12,6 +12,8 @@ It is recommended that you use this minor mode with [julia-mode](https://github.
 
 **Please make sure you have at least Emacs 25**. The `term` code changed a bit since Emacs 24, and the package does not support that and earlier versions. For example, Ubuntu has had Emacs 25 since 18.04LTS.
 
+Use `git clone https://github.com/tpapp/julia-repl` to download this repository.
+
 Place this in your **Emacs initialization files** (eg `.emacs`):
 ```emacs-lisp
 (add-to-list 'load-path path-to-julia-repl)
@@ -19,6 +21,8 @@ Place this in your **Emacs initialization files** (eg `.emacs`):
 (add-hook 'julia-mode-hook 'julia-repl-mode) ;; always use minor mode
 ```
 If you want to use a Julia executable other than `julia` in your path, see [below](#julia-executables).
+
+You may need to manually install the `s` package. It can be found on [MELPA](https://melpa.org/#/)
 
 If you are experiencing problems with [Unicode characters](https://docs.julialang.org/en/v1/manual/unicode-input/) in the Julia REPL, try setting the relevant coding/language environment, eg
 ```emacs-lisp
