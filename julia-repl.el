@@ -181,6 +181,13 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
 
 (with-eval-after-load 'vterm
 
+  (cl-defun julia-repl--vterm--get-pwd (&rest args)
+    "A workaround for https://github.com/akermu/emacs-libvterm/issues/316.
+
+Return the `default-directory' instead of calling the relevant vterm internal which may segfault."
+    default-directory
+    (error "foo"))
+
   (cl-defstruct julia-repl--buffer-vterm
     "Terminal backend using ‘vterm’, which needs to be installed and loaded.")
 
@@ -201,7 +208,9 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
       (with-current-buffer vterm-buffer
         (let ((vterm-shell (apply #'concat executable-path " " switches))
               (vterm-kill-buffer-on-exit t))
-          (vterm-mode)))
+          (vterm-mode)
+          ;; NOTE workaround for https://github.com/akermu/emacs-libvterm/issues/316, remove fixed
+          (add-function :override (local 'vterm--get-pwd) #'julia-repl--vterm--get-pwd)))
       vterm-buffer))
 
   (cl-defmethod julia-repl--send-to-backend ((_terminal-backend julia-repl--buffer-vterm)
