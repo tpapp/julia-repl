@@ -493,7 +493,10 @@ prepend ‘julia-repl-path-cygwin-prefix’."
 ;; sending to the REPL
 ;;
 
-(defun julia-repl--send-string (string &optional no-newline no-bracketed-paste)
+(cl-defun julia-repl--send-string (string &optional
+                                          no-newline
+                                          no-bracketed-paste
+                                          (dont-clear 'no-newline))
   "Send STRING to the Julia REPL term buffer.
 
 A closing newline is sent according to NO-NEWLINE:
@@ -502,15 +505,35 @@ A closing newline is sent according to NO-NEWLINE:
   2. 'PREFIX sends it according to ‘current-prefix-arg’,
   3. otherwise no newline.
 
-Unless NO-BRACKETED-PASTE, bracketed paste control sequences are used."
+Unless NO-BRACKETED-PASTE, bracketed paste control sequences are used.
+
+DONT-CLEAR determines whether a C-a + backspace character is sent (to
+ensure that we are in the basic REPL mode, at the beginning of the line).
+
+Valid values are:
+
+  1. NIL or T determines its behavior directly,
+
+  2. 'NO-NEWLINE will copy it from NO-NEWLINE after it has been
+    determined as above. This is the default, with the rationale
+    that when a newline is not sent, the user may want to edit
+    the expression before evaluation.
+"
   (let ((inferior-buffer (julia-repl-inferior-buffer)))
     (display-buffer inferior-buffer)
     (with-current-buffer inferior-buffer
+      ;; resolve special cases for arguments
+      (when (eq no-newline 'prefix)
+        (setq no-newline (not (not current-prefix-arg))))
+      (when (eq dont-clear 'no-newline)
+        (setq dont-clear no-newline))
+      ;; possibly clear the prompt
+      (unless dont-clear
+        (term-send-raw-string "\^A\^K\b"))
       (unless no-bracketed-paste        ; bracketed paste start
         (term-send-raw-string "\e[200~"))
       (term-send-raw-string (string-trim string))
-      (when (eq no-newline 'prefix)
-        (setq no-newline current-prefix-arg))
+      ;; possibly send the expression for evaluation
       (unless no-newline
         (term-send-raw-string "\^M"))
       (unless no-bracketed-paste        ; bracketed paste stop
