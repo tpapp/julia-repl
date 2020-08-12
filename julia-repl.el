@@ -181,12 +181,12 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
 
 (with-eval-after-load 'vterm
 
-  (cl-defun julia-repl--vterm--get-pwd (&rest args)
-    "A workaround for https://github.com/akermu/emacs-libvterm/issues/316.
-
-Return the `default-directory' instead of calling the relevant vterm internal which may segfault."
-    default-directory
-    (error "foo"))
+  (defun julia-repl--next-error-function (n &optional reset)
+    "A workaround for https://github.com/akermu/emacs-libvterm/issues/316."
+    ;; NOTE remove when that issue is fixed
+    (interactive "p")
+    (goto-char (point))
+    (compilation-next-error-function n reset))
 
   (cl-defstruct julia-repl--buffer-vterm
     "Terminal backend using ‘vterm’, which needs to be installed and loaded.")
@@ -209,8 +209,11 @@ Return the `default-directory' instead of calling the relevant vterm internal wh
         (let ((vterm-shell (apply #'concat executable-path " " switches))
               (vterm-kill-buffer-on-exit t))
           (vterm-mode)
-          ;; NOTE workaround for https://github.com/akermu/emacs-libvterm/issues/316, remove fixed
-          (add-function :override (local 'vterm--get-pwd) #'julia-repl--vterm--get-pwd)))
+          ;; NOTE workaround for https://github.com/akermu/emacs-libvterm/issues/316, remove when fixed
+          (add-hook 'compilation-shell-minor-mode-hook
+                    ;; NOTE run *after* vterm's hook and overwrite `next-error-function'
+                    (lambda () (setq next-error-function 'julia-repl--next-error-function))
+                    t t)))
       vterm-buffer))
 
   (cl-defmethod julia-repl--send-to-backend ((_terminal-backend julia-repl--buffer-vterm)
