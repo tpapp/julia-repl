@@ -451,7 +451,7 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
 
 This is the standard entry point for using this package."
   (interactive)
-  (switch-to-buffer-other-window (julia-repl-inferior-buffer)))
+  (pop-to-buffer (julia-repl-inferior-buffer)))
 
 ;;
 ;; path rewrites
