@@ -138,7 +138,15 @@ Support for the vterm backend is WIP. In the long run it is hoped that it will r
 
 The `@edit` macro can be called with `C-c C-e` when the `julia-repl-mode` minor mode is enabled. The behavior depends on the value of the `JULIA_EDITOR` envoronment variable in the Julia session. The command `julia-repl-set-julia-editor` is provided to conveniently control this from emacs.
 
-To use "emacsclient" as a default in each Julia REPL, call `julia-repl-use-emacsclient`:
+To use "emacsclient" as a default in each Julia REPL you open in emacs, add the following code to your `~/.julia/config/startup.jl`:
+
+```julia
+if haskey(ENV, "INSIDE_EMACS")
+    ENV["JULIA_EDITOR"] = "emacsclient"
+end
+```
+
+If you cannot edit your `startup.jl`, you can configure the editor in each repl after starting it with:
 
 ```elisp
 (add-hook 'julia-repl-hook #'julia-repl-use-emacsclient)
