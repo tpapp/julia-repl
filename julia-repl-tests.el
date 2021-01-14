@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2019  Tamas Papp
 ;; Author: Tamas Papp <tkpapp@gmail.com>
-;; Package-Requires: ((emacs "25")(s "1.12"))
+;; Package-Requires: ((emacs "25.1")(s "1.12"))
 
 (require 'cl-lib)
 (require 'julia-repl)
