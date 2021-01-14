@@ -157,7 +157,8 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
       (when julia-repl-set-term-escape
         (term-set-escape-char ?\C-x))      ; useful for switching windows
       (setq-local term-prompt-regexp "^(julia|shell|help\\?|(\\d+\\|debug ))>")
-      (setq-local term-suppress-hard-newline t)  ; reflow text
+      (when (version< emacs-version "27")
+        (setq-local term-suppress-hard-newline t))  ; reflow text
       (setq-local term-scroll-show-maximum-output t)
       ;; do I need this?
       (setq-local term-scroll-to-bottom-on-output t))
