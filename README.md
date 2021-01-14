@@ -110,7 +110,11 @@ If you are using the same settings for a specific file, consider using [file var
 
 then the next time you open a REPL, it will have the name `*julia-master-tests*`, and 4 worker processes.
 
-## Interacting with `term`
+## Terminal backends
+
+`julia-repl` can use the terminal in different ways. The default is `ansi-term`, which is included in Emacs. There is experimental support for [`vterm` via `emacs-libvterm`](https://github.com/akermu/emacs-libvterm).
+
+### Some hints on interacting with `term`
 
 Note some keybindings for `term`:
 
@@ -119,6 +123,16 @@ Note some keybindings for `term`:
 3. for scrolling, use `S-<prior>` and `S-<next>`.
 
 See the help of `term` for more.
+
+### Using `vterm` (experimental)
+
+Support for the vterm backend is WIP. In the long run it is hoped that it will replace `ansi-term` as the default backend for this package, fixing many outstanding issues.
+
+1. Install [`emacs-libvterm`](https://github.com/akermu/emacs-libvterm) and make sure you have a working installation (eg `M-x vterm`) should start a terminal
+
+2. Evaluate `(julia-repl-set-terminal-backend 'vterm)` in your config file *after* you load `julia-repl`, but *before* you use it (and of course `vterm` should be loaded at some point). Switching terminal backends with already running Julia processes is not supported.
+
+3. You may want to `(setq vterm-kill-buffer-on-exit nil)` to prevent the buffers associated with terminated Julia processes being killed automatically. This allows you to retain output and see error messages if the process does not start.
 
 ## Using the @edit macro
 
