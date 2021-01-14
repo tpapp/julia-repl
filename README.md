@@ -127,6 +127,8 @@ Support for the vterm backend is WIP. In the long run it is hoped that it will r
 
 2. Evaluate `(julia-repl-set-terminal-backend 'vterm)` in your config file *after* you load `julia-repl`, but *before* you use it (and of course `vterm` should be loaded at some point). Switching terminal backends with already running Julia processes is not supported.
 
+3. You may want to `(setq vterm-kill-buffer-on-exit nil)` to prevent the buffers associated with terminated Julia processes being killed automatically. This allows you to retain output and see error messages if the process does not start.
+
 ## Using the @edit macro
 
 The `@edit` macro can be called with `C-c C-e` when the `julia-repl-mode` minor mode is enabled. The behavior depends on the value of the `JULIA_EDITOR` envoronment variable in the Julia session. The command `julia-repl-set-julia-editor` is provided to conveniently control this from emacs.
