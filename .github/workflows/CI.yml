@@ -34,8 +34,21 @@ jobs:
     - uses: purcell/setup-emacs@master
       with:
         version: ${{ matrix.emacs_version }}
-    - uses: leotaku/elisp-check@master
+    - name: Run ert
+      uses: leotaku/elisp-check@master
       with:
         check: ert
         file: 'julia-repl-tests.el'
         ignore_warnings: ${{ matrix.ignore_warnings }}
+    - name: Run package-lint
+      uses: leotaku/elisp-check@master
+      with:
+        file: "julia-repl.el"
+        ignore_warnings: true
+        check: package-lint
+    - name: Run byte-compile
+      uses: leotaku/elisp-check@master
+      with:
+        file: "julia-repl.el"
+        ignore_warnings: true
+        check: byte-compile
