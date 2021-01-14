@@ -32,6 +32,6 @@ jobs:
         version: ${{ matrix.emacs_version }}
     - uses: leotaku/elisp-check@master
       with:
-        check: ert
+        check: melpa
         file: julia-repl-tests.el
-#        ignore_warnings: ${{ matrix.ignore_warnings }}
+        ignore_warnings: ${{ matrix.ignore_warnings }}
