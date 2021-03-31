@@ -774,7 +774,9 @@ When called with a prefix argument, activate the home project."
 
 ;;;###autoload
 (define-minor-mode julia-repl-mode
-  "Minor mode for interacting with a Julia REPL running inside a term."
+  "Minor mode for interacting with a Julia REPL running inside a term.
+
+\\{julia-repl-mode-map}"
   nil ">"
   `((,(kbd "C-c C-a")    . julia-repl-activate-parent)
     (,(kbd "C-c C-b")    . julia-repl-send-buffer)
