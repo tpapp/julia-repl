@@ -231,13 +231,21 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
 ;; global variables
 ;;
 
+(defconst julia-repl--rx-at
+  (rx (seq "@" (syntax whitespace)
+           (? (group (+ alnum)) space)  ; package name
+           (group (+ (not (any space ">" "<" "(" ")" "\t" "\n" "," "'" "\"" ";" ":")))) ; path
+           ":" (group (+ num))))        ; line
+  "Matches “@ Foo ~/code/Foo/src/Foo.jl:100”")
+
 (defvar julia-repl--compilation-regexp-alist
-  '(;; matches "while loading /tmp/Foo.jl, in expression starting on line 2"
+  `(;; matches "while loading /tmp/Foo.jl, in expression starting on line 2"
     (julia-load-error . ("while loading \\([^ ><()\t\n,'\";:]+\\), in expression starting on line \\([0-9]+\\)" 1 2))
     ;; matches "around /tmp/Foo.jl:2", also starting with "at" or "Revise"
     (julia-loc . ("\\(around\\|at\\|Revise\\) \\([^ ><()\t\n,'\";:]+\\):\\([0-9]+\\)" 2 3))
     ;; matches "omitting file /tmp/Foo.jl due to parsing error near line 2", from Revise.parse_source!
     (julia-warn-revise . ("omitting file \\([^ ><()\t\n,'\";:]+\\) due to parsing error near line \\([0-9]+\\)" 1 2))
+    (julia-error-at . (,julia-repl--rx-at 2 3))
     )
   "Specifications for highlighting error locations.
 
