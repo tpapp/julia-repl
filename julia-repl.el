@@ -545,7 +545,14 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
 
 This is the standard entry point for using this package."
   (interactive)
-  (pop-to-buffer (julia-repl-inferior-buffer)))
+  (let* ((inferior-buffer (julia-repl-inferior-buffer))
+         (repl-window (get-buffer-window inferior-buffer t)))
+    (if repl-window
+        (progn (let ((repl-frame (window-frame repl-window)))
+                 (unless (eq (selected-frame) repl-frame)
+                   (select-frame-set-input-focus repl-frame)))
+               (select-window repl-window)))
+    (pop-to-buffer inferior-buffer)))
 
 ;;
 ;; path rewrites
@@ -600,7 +607,8 @@ Unless NO-BRACKETED-PASTE, bracketed paste control sequences are used."
   (when (eq no-newline 'prefix)
     (setq no-newline current-prefix-arg))
   (let ((inferior-buffer (julia-repl-inferior-buffer)))
-    (display-buffer inferior-buffer)
+    (unless (get-buffer-window inferior-buffer t)
+        (display-buffer inferior-buffer))
     (julia-repl--send-to-backend julia-repl--terminal-backend
                                  inferior-buffer (s-trim string) (not no-bracketed-paste)
                                  (not no-newline))))
