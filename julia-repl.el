@@ -305,6 +305,9 @@ used to generate a buffer name.")
 These are used for offering choices when selecting new suffix.
 For internal use only.")
 
+(defvar-local julia-repl--script-buffer nil
+  "Buffer active before calling `julia-repl'.")
+
 (defvar julia-repl-executable-key nil
   "Key for the executable associated with the buffer.
 
@@ -533,6 +536,8 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
                (inferior-buffer (julia-repl--make-buffer terminal-backend name executable-path
                                                          (when switches
                                                            (split-string switches)))))
+	  (with-current-buffer inferior-buffer
+	    (local-set-key (kbd "C-c C-z") #'julia-repl--switch-back))
           (when julia-repl-compilation-mode
             (julia-repl--setup-compilation-mode inferior-buffer basedir))
           (julia-repl--run-hooks inferior-buffer)
@@ -545,7 +550,17 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
 
 This is the standard entry point for using this package."
   (interactive)
-  (pop-to-buffer (julia-repl-inferior-buffer)))
+  (let ((script-buffer (current-buffer))
+	(inferior-buffer (julia-repl-inferior-buffer)))
+    (with-current-buffer inferior-buffer
+      (setq julia-repl--script-buffer script-buffer))
+    (pop-to-buffer inferior-buffer)))
+
+(defun julia-repl--switch-back ()
+  "Switch to the buffer that was active before last call to `julia-repl'."
+  (interactive)
+  (when (buffer-live-p julia-repl--script-buffer)
+    (switch-to-buffer-other-window julia-repl--script-buffer)))
 
 ;;
 ;; path rewrites
