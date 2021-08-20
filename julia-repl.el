@@ -213,6 +213,7 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
       (with-current-buffer vterm-buffer
         (let ((vterm-shell (s-join " " (cons executable-path switches))))
           (vterm-mode)
+          (local-set-key (kbd "C-c C-z") #'julia-repl--switch-back)
           ;; NOTE workaround for https://github.com/akermu/emacs-libvterm/issues/316, remove when fixed
           (add-hook 'compilation-shell-minor-mode-hook
                     ;; NOTE run *after* vterm's hook and overwrite `next-error-function'
@@ -536,8 +537,6 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
                (inferior-buffer (julia-repl--make-buffer terminal-backend name executable-path
                                                          (when switches
                                                            (split-string switches)))))
-	  (with-current-buffer inferior-buffer
-	    (local-set-key (kbd "C-c C-z") #'julia-repl--switch-back))
           (when julia-repl-compilation-mode
             (julia-repl--setup-compilation-mode inferior-buffer basedir))
           (julia-repl--run-hooks inferior-buffer)
