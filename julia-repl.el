@@ -270,7 +270,9 @@ Valid backends are currently:
      (setq julia-repl--terminal-backend (make-julia-repl--buffer-ansi-term)))
     ('vterm
      (require 'vterm)
-     (setq julia-repl--terminal-backend (make-julia-repl--buffer-vterm)))
+     (require 'eww)
+     (setq julia-repl--terminal-backend (make-julia-repl--buffer-vterm))
+     (add-to-list 'vterm-eval-cmds '("julia-repl--show" julia-repl--show)))
     (otherwise
      (error "Unrecognized backend “%s”." backend))))
 
@@ -793,6 +795,24 @@ When called with a prefix argument, activate the home project."
   "Use emacsclient as the JULIA_EDITOR."
   (interactive)
   (julia-repl--send-string "ENV[\"JULIA_EDITOR\"] = \"emacsclient\";"))
+
+(defun julia-repl--show (mime base64data)
+  "Show data sent from Julia in some Emacs window.
+Called by EmacsVterm.jl to show HTML documentation."
+  (pcase mime
+    ("text/html"
+     (let ((data (decode-coding-string (base64-decode-string base64data) 'utf-8))
+           (doc-buffer (get-buffer-create "*julia-doc*")))
+       (with-current-buffer doc-buffer
+         (eww-setup-buffer))
+       (with-temp-buffer
+         (insert "Content-type: text/html\n")
+         (insert (format "Content-length: %d\n" (length data)))
+         (insert "\n")
+         (insert data)
+         (eww-render 200 "julia://doc" nil doc-buffer))
+       (display-buffer doc-buffer)))
+    (t (error "Unsupported MIME type"))))
 
 ;;;###autoload
 (define-minor-mode julia-repl-mode
