@@ -45,7 +45,7 @@ If you are experiencing problems with [Unicode characters](https://docs.julialan
 | `C-c C-s`     | prompt for buffer name suffix                               |
 | `C-c C-t`     | send whole buffer to REPL (using Revise.includet)           |
 | `C-c C-v`     | prompt for Julia executable                                 |
-| `C-c C-z`     | raise the REPL or create a new one                          |
+| `C-c C-z`     | raise the REPL or create a new one (or switch back from REPL – only in `vterm` backend) |
 | `C-RET`       | send line to REPL (without bracketed paste)                 |
 
 All actions that send something to the REPL terminate with a **newline**, triggering evaluation. If you want to avoid sending a newline (eg maybe because you want to edit an expression), use prefix arguments (`C--` or `C-u`, currently both have the same effect). This of course does not apply to `C-c C-b`.
