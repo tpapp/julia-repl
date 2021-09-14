@@ -805,7 +805,7 @@ Called by EmacsVterm.jl to show HTML documentation."
        (shr-render-region (point-min) (point-max))
        (goto-char (point-min))
        (view-mode-enter)))
-    (t (error "Unsupported MIME type"))))
+    (_ (error "Unsupported MIME type"))))
 
 ;;;###autoload
 (define-minor-mode julia-repl-mode
