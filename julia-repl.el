@@ -795,17 +795,24 @@ When called with a prefix argument, activate the home project."
   (interactive)
   (julia-repl--send-string "ENV[\"JULIA_EDITOR\"] = \"emacsclient\";"))
 
-(defun julia-repl--show (mime base64data)
-  "Show data sent from Julia in some Emacs window.
-Called by EmacsVterm.jl to show HTML documentation."
-  (pcase mime
-    ("text/html"
+(defun julia-repl--show (kind mime base64data)
+  "Show data sent from Julia via EmacsVterm.jl in some Emacs window.
+KIND identifies the type of data being sent, MIME is the mime
+type of the data and BASE64DATA contains the actual
+Base64-encoded data.
+
+Currently, only showing the documentation is supported, but
+later, things like showing inline images or rendered LaTeX might
+be added."
+  (pcase `(,kind . ,mime)
+    ('("documentation" . "text/html")
      (with-current-buffer-window "*julia-doc*" nil nil
        (insert (decode-coding-string (base64-decode-string base64data) 'utf-8))
        (shr-render-region (point-min) (point-max))
        (goto-char (point-min))
        (view-mode-enter)))
-    (_ (error "Unsupported MIME type"))))
+    (_ (error "Unsupported data kind `%s' or MIME type `%s' (upgrade julia-repl or use older EmacsVterm.jl)"
+              kind mime))))
 
 ;;;###autoload
 (define-minor-mode julia-repl-mode
