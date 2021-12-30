@@ -799,7 +799,9 @@ When called with a prefix argument, activate the home project."
   "Minor mode for interacting with a Julia REPL running inside a term.
 
 \\{julia-repl-mode-map}"
-  nil ">"
+  :init-value nil
+  :lighter ">"
+  :keymap
   `((,(kbd "C-c C-a")    . julia-repl-activate-parent)
     (,(kbd "C-c C-b")    . julia-repl-send-buffer)
     (,(kbd "C-c C-c")    . julia-repl-send-region-or-line)
