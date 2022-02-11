@@ -373,6 +373,17 @@ When NIL, this was unsuccessful."
     (when (string-prefix-p prefix maybe-basedir)
       (substring maybe-basedir (length prefix)))))
 
+(defun julia-repl--executable-path (executable-record)
+  "Retrun the Julia executable for the given EXECUTABLE-RECORD.
+
+Return the executable path in the given EXECUTABLE-RECORD if it's
+absolute.  Else, return the absolute path of the Julia executable
+using ‘executable-find’, or NIL."
+  (let ((executable (cl-second executable-record)))
+    (if (file-name-absolute-p executable)
+        executable
+      (executable-find executable))))
+
 (defun julia-repl--complete-executable-record! (executable-record)
   "Complete EXECUTABLE-RECORD if necessary.
 
@@ -381,7 +392,7 @@ Queries and appends missing information if necessary.
 Note: when cannot capture the base dir, it is set to NIL to
 prevent further attempts."
   (unless (plist-member (cddr executable-record) :basedir)
-    (let* ((executable-path (cl-second executable-record))
+    (let* ((executable-path (julia-repl--executable-path executable-record))
            (basedir (julia-repl--capture-basedir executable-path)))
       (nconc executable-record `(:basedir ,basedir))
       (unless basedir
@@ -537,7 +548,7 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
       (let ((executable-record (julia-repl--executable-record executable-key))
             (switches julia-repl-switches))
         (julia-repl--complete-executable-record! executable-record)
-        (let* ((executable-path (cl-second executable-record))
+        (let* ((executable-path (julia-repl--executable-path executable-record))
                (basedir (plist-get (cddr executable-record) :basedir))
                (inferior-buffer (julia-repl--make-buffer terminal-backend name executable-path
                                                          (when switches
