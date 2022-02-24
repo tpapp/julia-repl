@@ -108,6 +108,11 @@ in your Emacs init file after loading this package."
   :type 'boolean
   :group 'julia-repl)
 
+(defcustom julia-repl-skip-comments nil
+  "Make some send commands (currently `julia-repl-send-line' and `julia-repl-skip-region-or-line') skip comments."
+  :type 'boolean
+  :group 'julia-repl)
+
 ;;;; utility functions
 
 (defun julia-repl--add-earmuffs (buffer-name)
@@ -619,6 +624,12 @@ Unless NO-BRACKETED-PASTE, bracketed paste control sequences are used."
                                  inferior-buffer (s-trim string) (not no-bracketed-paste)
                                  (not no-newline))))
 
+(defun julia-repl--forward-skip-comments ()
+  "Move one line forward, then skip any comments when `julia-repl-skip-comments' is set."
+  (forward-line)
+  (when julia-repl-skip-comments
+    (forward-comment (buffer-size))))
+
 (defun julia-repl-send-line ()
   "Send the current line to the Julia REPL term buffer.
 
@@ -629,7 +640,7 @@ bracketed paste.  Unless you want this specifically, you should
 probably be using `julia-repl-send-region-or-line'."
   (interactive)
   (julia-repl--send-string (thing-at-point 'line t) 'prefix t)
-  (forward-line))
+  (julia-repl--forward-skip-comments))
 
 (defun julia-repl-send-region-or-line (&optional prefix suffix)
   "Send active region (if any) or current line to the inferior buffer.
@@ -649,7 +660,7 @@ and after."
           (deactivate-mark))
       (progn
         (-send-string (thing-at-point 'line t))
-        (forward-line)))))
+        (julia-repl--forward-skip-comments)))))
 
 (defun julia-repl-edit ()
   "Call @edit on the expression.
