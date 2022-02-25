@@ -52,6 +52,8 @@ All actions that send something to the REPL terminate with a **newline**, trigge
 
 All commands send code using [bracketed paste](https://cirw.in/blog/bracketed-paste). When Julia is waiting for input, control characters like `^[[200~` may show up in your buffer, this is innocuous. If you input takes a long time to evaluate, you can step through it line-by-line with `C-RET`.
 
+Options for this package are exposed via the customize interface (`M-x customize-group julia`).
+
 ## Environment variables
 
 You can set environment variables directly from your `init.el` in Emacs, eg
@@ -113,7 +115,7 @@ then the next time you open a REPL, it will have the name `*julia-master-tests*`
 
 ## Terminal backends
 
-`julia-repl` can use the terminal in different ways. The default is `ansi-term`, which is included in Emacs. There is experimental support for [`vterm` via `emacs-libvterm`](https://github.com/akermu/emacs-libvterm).
+`julia-repl` can use the terminal in different ways. The default is `ansi-term`, which is included in Emacs, but it is recommended that you use [`vterm` via `emacs-libvterm`](https://github.com/akermu/emacs-libvterm) (it is not the default since you need to install an extra package and the binary).
 
 ### Some hints on interacting with `term`
 
@@ -125,9 +127,9 @@ Note some keybindings for `term`:
 
 See the help of `term` for more.
 
-### Using `vterm` (experimental)
+### Using `vterm`
 
-Support for the vterm backend is WIP. In the long run it is hoped that it will replace `ansi-term` as the default backend for this package, fixing many outstanding issues.
+`vterm` is now the recommended backend, but for now you have to enable it explicitly because dependencies need to be available. In the long run it is hoped that it will replace `ansi-term` as the default backend for this package, fixing many outstanding issues.
 
 1. Install [`emacs-libvterm`](https://github.com/akermu/emacs-libvterm) and make sure you have a working installation (eg `M-x vterm`) should start a terminal
 
