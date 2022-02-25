@@ -109,7 +109,7 @@ in your Emacs init file after loading this package."
   :group 'julia-repl)
 
 (defcustom julia-repl-skip-comments nil
-  "Make some send commands (currently `julia-repl-send-line' and `julia-repl-skip-region-or-line') skip comments."
+  "Make some send commands (currently `julia-repl-send-line' and `julia-repl-send-region-or-line') skip comments."
   :type 'boolean
   :group 'julia-repl)
 
