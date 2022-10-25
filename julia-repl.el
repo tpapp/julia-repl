@@ -811,6 +811,16 @@ be added."
        (shr-render-region (point-min) (point-max))
        (goto-char (point-min))
        (view-mode-enter)))
+    (`("image" . ,_)
+     (with-current-buffer-window "*julia-img*" nil nil
+       (let ((imgdata (base64-decode-string base64data)))
+         ;; TODO: Implement different display modes like julia-snail
+         ;; allow images to be erased
+         (fundamental-mode)
+         (read-only-mode -1)
+         (erase-buffer)
+         (insert imgdata)
+         (image-mode))))
     (_ (error "Unsupported data kind `%s' or MIME type `%s' (upgrade julia-repl or use older EmacsVterm.jl)"
               kind mime))))
 
