@@ -3,7 +3,7 @@
 ;; Copyright (C) 2016  Tamas K. Papp
 ;; Author: Tamas Papp <tkpapp@gmail.com>
 ;; Keywords: languages
-;; Version: 1.3.0
+;; Version: 1.3.1
 ;; Package-Requires: ((emacs "25.1")(s "1.12"))
 ;; URL: https://github.com/tpapp/julia-repl
 
@@ -271,9 +271,9 @@ Valid backends are currently:
 - ‘vterm’, which requires that vterm is installed. See URL ‘https://github.com/akermu/emacs-libvterm’."
   (interactive "S")
   (cl-case backend
-    ('ansi-term
+    (ansi-term
      (setq julia-repl--terminal-backend (make-julia-repl--buffer-ansi-term)))
-    ('vterm
+    (vterm
      (require 'vterm)
      (setq julia-repl--terminal-backend (make-julia-repl--buffer-vterm))
      (add-to-list 'vterm-eval-cmds '("julia-repl--show" julia-repl--show)))
@@ -557,7 +557,8 @@ Valid keys are the first items in ‘julia-repl-executable-records’."
           (when julia-repl-compilation-mode
             (julia-repl--setup-compilation-mode inferior-buffer basedir))
           (julia-repl--run-hooks inferior-buffer)
-          (setf (buffer-local-value 'julia-repl--inferior-buffer-suffix inferior-buffer) suffix)
+          (with-current-buffer inferior-buffer
+            (setq-local julia-repl--inferior-buffer-suffix suffix))
           inferior-buffer)))))
 
 ;;;###autoload
