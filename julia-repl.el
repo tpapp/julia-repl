@@ -64,7 +64,7 @@ See ‘julia-repl--inferior-buffer-name’."
   :group 'julia-repl)
 
 (defcustom julia-repl-hook nil
-  "Hook to run after starting a Julia REPL term buffer."
+  "Hook to run after starting a Julia REPL term buffer. For all functions, it can be assumed that the current buffer is an inferior Julia buffer with a running REPL."
   :type 'hook
   :group 'julia-repl)
 
