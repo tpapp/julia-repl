@@ -788,6 +788,14 @@ name), separated by dots, as a list."
 	(with-current-buffer (julia-repl-inferior-buffer) (cd directory)))
     (warn "buffer not associated with a file")))
 
+(cl-defun julia-repl--find-projectfile (&optional (filename (buffer-file-name)))
+  "Find a project file in the parent directories of the filename "
+  (when filename
+    (cl-flet ((find-projectfile (filename)
+                                (locate-dominating-file (buffer-file-name) filename)))
+      (or (find-projectfile "Project.toml")
+          (find-projectfile "JuliaProject.toml")))))
+
 (defun julia-repl-activate-parent (arg)
   "Look for a project file in the parent directories, if found, activate the project.
 
@@ -797,16 +805,13 @@ When called with a prefix argument, activate the home project."
       (progn
         (message "activating home project")
         (julia-repl--send-string "import Pkg; Pkg.activate()"))
-    (cl-flet ((find-projectfile (filename)
-                                (locate-dominating-file (buffer-file-name) filename)))
-      (if-let ((projectfile (or (find-projectfile "Project.toml")
-                                (find-projectfile "JuliaProject.toml"))))
-          (progn
-            (message "activating %s" projectfile)
-            (julia-repl--send-string
-             (concat "import Pkg; Pkg.activate(\""
-                     (expand-file-name (file-name-directory projectfile)) "\")")))
-        (message "could not find project file")))))
+    (if-let ((projectfile (julia-repl--find-projectfile)))
+        (progn
+          (message "activating %s" projectfile)
+          (julia-repl--send-string
+           (concat "import Pkg; Pkg.activate(\""
+                   (expand-file-name (file-name-directory projectfile)) "\")")))
+      (message "could not find project file"))))
 
 (defun julia-repl-set-julia-editor (editor)
   "Set the JULIA_EDITOR environment variable."
