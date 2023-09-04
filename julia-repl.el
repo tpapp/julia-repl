@@ -85,6 +85,11 @@ Note that this affects all buffers using the ‘ansi-term’ map."
   :type 'boolean
   :group 'julia-repl)
 
+(defcustom julia-repl-pop-to-buffer t
+  "When non-nil pop to julia repl"
+  :type 'symbol
+  :group 'julia-repl)
+
 (defcustom julia-repl-path-rewrite-rules nil
   "A list of rewrite rules applied to paths sent with ‘include’ and similar.
 
@@ -571,13 +576,17 @@ This is the standard entry point for using this package."
 	(inferior-buffer (julia-repl-inferior-buffer)))
     (with-current-buffer inferior-buffer
       (setq julia-repl--script-buffer script-buffer))
-    (pop-to-buffer inferior-buffer)))
+    (if julia-repl-pop-to-buffer
+	(pop-to-buffer inferior-buffer)
+      (switch-to-buffer inferior-buffer))))
 
 (defun julia-repl--switch-back ()
   "Switch to the buffer that was active before last call to `julia-repl'."
   (interactive)
   (when (buffer-live-p julia-repl--script-buffer)
-    (switch-to-buffer-other-window julia-repl--script-buffer)))
+    (if julia-repl-pop-to-buffer 
+	(switch-to-buffer-other-window julia-repl--script-buffer)
+      (switch-to-buffer julia-repl--script-buffer))))
 
 ;;
 ;; path rewrites
@@ -632,7 +641,8 @@ Unless NO-BRACKETED-PASTE, bracketed paste control sequences are used."
   (when (eq no-newline 'prefix)
     (setq no-newline current-prefix-arg))
   (let ((inferior-buffer (julia-repl-inferior-buffer)))
-    (display-buffer inferior-buffer)
+    (if julia-repl-pop-to-buffer
+	(display-buffer inferior-buffer))
     (julia-repl--send-to-backend julia-repl--terminal-backend
                                  inferior-buffer (s-trim string) (not no-bracketed-paste)
                                  (not no-newline))))
