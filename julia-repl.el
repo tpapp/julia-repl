@@ -735,7 +735,7 @@ If a buffer corresponds to a file and is not saved, the function prompts the use
                 (save-buffer)
               (unless (file-exists-p file)
                 (message "need to save the file first"))))
-          (julia-repl--send-string (concat "Revise.includet(\""
+          (julia-repl--send-string (concat "using Revise; Revise.includet(\""
                                            (julia-repl--path-rewrite file julia-repl-path-rewrite-rules)
                                            "\");")))
       (message "buffer does not correspond to a file"))))
