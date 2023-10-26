@@ -27,6 +27,7 @@ jobs:
           - 27.2
           - 28.1
           - 28.2
+          - 29.1
         ignore_warnings:
           - true
         include:
