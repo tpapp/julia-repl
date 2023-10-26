@@ -199,11 +199,6 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
     (goto-char (point))
     (compilation-next-error-function n reset))
 
-  (defun julia-repl--has-running-vterm-process (inferior-buffer)
-    "Return non-nil if ‘inferior-buffer’ has a running vterm process."
-    (let ((proc (buffer-local-value 'vterm--process inferior-buffer)))
-      (and proc (memq (process-status proc) '(run stop open listen connect)))))
-
   (cl-defstruct julia-repl--buffer-vterm
     "Terminal backend using ‘vterm’, which needs to be installed and loaded.")
 
@@ -212,8 +207,7 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
     (if-let ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
         (with-current-buffer inferior-buffer
           (cl-assert (eq major-mode 'vterm-mode) nil "Expected vterm-mode. Changed mode or backends?")
-          ;; cf https://github.com/akermu/emacs-libvterm/issues/270
-          (when (julia-repl--has-running-vterm-process inferior-buffer)
+          (when (vterm-check-proc inferior-buffer)
             inferior-buffer))))
 
   (cl-defmethod julia-repl--make-buffer ((_terminal-backend julia-repl--buffer-vterm)
