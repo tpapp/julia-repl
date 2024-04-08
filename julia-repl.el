@@ -260,8 +260,9 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
   (cl-defmethod julia-repl--send-to-backend ((_terminal-backend julia-repl--buffer-eat)
 					     buffer string paste-p ret-p)
     (with-current-buffer buffer
-      (when paste-p
-	(eat-term-send-string-as-yank eat-terminal string))
+      (if paste-p
+	  (eat-term-send-string-as-yank eat-terminal string)
+        (eat-term-send-string eat-terminal string))
       (when ret-p
 	(eat-term-send-string eat-terminal "\^M")))))
 
