@@ -232,6 +232,40 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
       (when ret-p
         (vterm-send-return)))))
 
+;;; eat term
+
+(with-eval-after-load 'eat
+
+  (cl-defstruct julia-repl--buffer-eat
+    "Terminal backend using ‘eat’, which needs to be installed and loaded.")
+
+  (cl-defmethod julia-repl--locate-live-buffer ((_terminal-backend julia-repl--buffer-eat)
+						name)
+    (if-let ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
+	(with-current-buffer inferior-buffer
+	  (cl-assert (eq major-mode 'eat-mode) nil "Expected eat-mode. Changed mode or backends?")
+	  (when (eat-term-live-p inferior-buffer)
+	    inferior-buffer))))
+
+  (cl-defmethod julia-repl--make-buffer ((_terminal-backend julia-repl--buffer-eat)
+					 name executable-path switches)
+    (let ((inferior-buffer (apply #'eat-make name executable-path nil switches)))
+      (with-current-buffer inferior-buffer
+	(mapc (lambda (k)
+		(define-key eat-semi-char-mode-map k (global-key-binding k)))
+	      julia-repl-captures)
+	(local-set-key (kbd "C-c C-z") #'julia-repl--switch-back))
+      inferior-buffer))
+
+  (cl-defmethod julia-repl--send-to-backend ((_terminal-backend julia-repl--buffer-eat)
+					     buffer string paste-p ret-p)
+    (with-current-buffer buffer
+      (if paste-p
+	  (eat-term-send-string-as-yank eat-terminal string)
+        (eat-term-send-string eat-terminal string))
+      (when ret-p
+	(eat-term-send-string eat-terminal "\^M")))))
+
 ;;
 ;; global variables
 ;;
@@ -267,7 +301,9 @@ Valid backends are currently:
 
 - ‘ansi-term’, using the ANSI terminal built into Emacs.
 
-- ‘vterm’, which requires that vterm is installed. See URL ‘https://github.com/akermu/emacs-libvterm’."
+- ‘vterm’, which requires that vterm is installed. See URL ‘https://github.com/akermu/emacs-libvterm’.
+
+- ‘eat’, which requires that eat is installed. See URL ‘https://codeberg.org/akib/emacs-eat’."
   (interactive "S")
   (cl-case backend
     (ansi-term
@@ -276,6 +312,9 @@ Valid backends are currently:
      (require 'vterm)
      (setq julia-repl--terminal-backend (make-julia-repl--buffer-vterm))
      (add-to-list 'vterm-eval-cmds '("julia-repl--show" julia-repl--show)))
+    (eat
+     (require 'eat)
+     (setq julia-repl--terminal-backend (make-julia-repl--buffer-eat)))
     (otherwise
      (error "Unrecognized backend “%s”." backend))))
 

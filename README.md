@@ -115,7 +115,11 @@ then the next time you open a REPL, it will have the name `*julia-master-tests*`
 
 ## Terminal backends
 
-`julia-repl` can use the terminal in different ways. The default is `ansi-term`, which is included in Emacs, but it is recommended that you use [`vterm` via `emacs-libvterm`](https://github.com/akermu/emacs-libvterm) (it is not the default since you need to install an extra package and the binary).
+`julia-repl` can use the terminal in different ways.
+
+The default is `ansi-term`, which is included in Emacs, but it is recommended that you use [`vterm` via `emacs-libvterm`](https://github.com/akermu/emacs-libvterm) (it is not the default since you need to install an extra package and the binary).
+
+You can also use [`eat`](https://codeberg.org/akib/emacs-eat/) as a backend.
 
 ### Some hints on interacting with `term`
 
@@ -138,6 +142,10 @@ See the help of `term` for more.
 3. You may want to `(setq vterm-kill-buffer-on-exit nil)` to prevent the buffers associated with terminated Julia processes being killed automatically. This allows you to retain output and see error messages if the process does not start.
 
 4. You can also install [EmacsVterm.jl](https://github.com/wentasah/EmacsVterm.jl) package, which improves integration between Julia REPL and Emacs.
+
+#### Using `eat`
+
+Install [`eat`](https://codeberg.org/akib/emacs-eat/) and use `(julia-repl-set-terminal-backend 'eat)` in your config file.
 
 ## Using the @edit macro
 
