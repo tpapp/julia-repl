@@ -406,9 +406,8 @@ When NIL, this was unsuccessful."
          (expr (concat "print(\"" prefix
                        "\" * normpath(joinpath(VERSION <= v\"0.7-\" ? JULIA_HOME : Sys.BINDIR, "
                        "Base.DATAROOTDIR, \"julia\", \"base\")))"))
-         (switches " --history-file=no --startup-file=no -qe ")
-         (maybe-basedir (shell-command-to-string
-                         (concat executable-path switches (concat "'" expr "'")))))
+	 (lines (process-lines executable-path "--history-file=no" "--startup-file=no" "-qe" expr))
+	 (maybe-basedir (car lines)))
     (when (string-prefix-p prefix maybe-basedir)
       (substring maybe-basedir (length prefix)))))
 
