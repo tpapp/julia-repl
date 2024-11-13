@@ -401,7 +401,8 @@ Note that ‘make-term’ surrounds this string by *'s when converted to a buffe
 (cl-defun julia-repl--capture-basedir (executable-path)
   "Attempt to obtain the Julia base directory by querying the Julia executable.
 
-When NIL, this was unsuccessful."
+When NIL, this was unsuccessful. In this case, debug information
+is printed to the *Messages* buffer."
   (let* ((prefix "OK") ; prefix is used to verify that there was no error and help with extraction
          (expr (concat "print(\"" prefix
                        "\" * normpath(joinpath(VERSION <= v\"0.7-\" ? JULIA_HOME : Sys.BINDIR, "
@@ -409,8 +410,11 @@ When NIL, this was unsuccessful."
          (switches " --history-file=no --startup-file=no -qe ")
          (maybe-basedir (shell-command-to-string
                          (concat executable-path switches (concat "'" expr "'")))))
-    (when (string-prefix-p prefix maybe-basedir)
-      (substring maybe-basedir (length prefix)))))
+    (if (string-prefix-p prefix maybe-basedir)
+        (substring maybe-basedir (length prefix))
+      (progn
+        (message "Julia basedir query returned “%s”" maybe-basedir)
+        nil))))
 
 (defun julia-repl--executable-path (executable-record)
   "Retrun the Julia executable for the given EXECUTABLE-RECORD.
