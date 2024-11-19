@@ -1,9 +1,9 @@
 ;;; julia-repl.el --- A minor mode for a Julia REPL -*- lexical-binding:t; no-byte-compile:t -*-
 
-;; Copyright (C) 2016  Tamas K. Papp
+;; Copyright (C) 2016–2024 Tamas K. Papp
 ;; Author: Tamas Papp <tkpapp@gmail.com>
 ;; Keywords: languages
-;; Version: 1.3.1
+;; Version: 1.4.0
 ;; Package-Requires: ((emacs "25.1")(s "1.12"))
 ;; URL: https://github.com/tpapp/julia-repl
 
