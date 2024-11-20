@@ -1,9 +1,9 @@
 ;;; julia-repl.el --- A minor mode for a Julia REPL -*- lexical-binding:t; no-byte-compile:t -*-
 
-;; Copyright (C) 2016  Tamas K. Papp
+;; Copyright (C) 2016–2024 Tamas K. Papp
 ;; Author: Tamas Papp <tkpapp@gmail.com>
 ;; Keywords: languages
-;; Version: 1.3.1
+;; Version: 1.4.0
 ;; Package-Requires: ((emacs "25.1")(s "1.12"))
 ;; URL: https://github.com/tpapp/julia-repl
 
@@ -326,7 +326,9 @@ Entries have the form
 
   (KEY EXECUTABLE-PATH :BASEDIR BASEDIR)
 
-A missing :BASEDIR will be completed automatically when first used.
+`executable-path' is invoked as is, so make sure that it is in the path available to Emacs.
+
+A missing :BASEDIR will be completed automatically when first used, and it assumed to be the same afterwards.
 
 This is used for key lookup for ‘julia-repl-executable-key’. The
 first entry is the default.")
@@ -419,13 +421,10 @@ is printed to the *Messages* buffer."
 (defun julia-repl--executable-path (executable-record)
   "Retrun the Julia executable for the given EXECUTABLE-RECORD.
 
-Return the executable path in the given EXECUTABLE-RECORD if it's
-absolute.  Else, return the absolute path of the Julia executable
-using ‘executable-find’, or NIL."
-  (let ((executable (cl-second executable-record)))
-    (if (file-name-absolute-p executable)
-        executable
-      (executable-find executable))))
+It is checked for being a string."
+  (let ((executable-path (cl-second executable-record)))
+    (cl-assert (stringp executable-path) nil "No valid executable path found in %s" executable-record)
+    executable-path))
 
 (defun julia-repl--complete-executable-record! (executable-record)
   "Complete EXECUTABLE-RECORD if necessary.
