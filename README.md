@@ -121,6 +121,8 @@ The default is `ansi-term`, which is included in Emacs, but it is recommended th
 
 You can also use [`eat`](https://codeberg.org/akib/emacs-eat/) as a backend.
 
+**Note to Windows users**: you may not be able to use `eat` and/or `vterm` directly from native Windows Emacs, but there have been reports of people using them successfully from WSL (Windows Subsistem for Linux) 2. Please understand that supporting those terminal emulators is outside the scope of this package; `julia-repl` merely provides bindings for them conditional on availability on your system.
+
 ### Some hints on interacting with `term`
 
 Note some keybindings for `term`:
