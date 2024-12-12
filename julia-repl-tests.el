@@ -44,3 +44,11 @@
     (equal (match-string 1 str) "Foo")
     (equal (match-string 2 str) "~/code/Foo/src/Foo.jl")
     (equal (match-string 3 str) "100")))
+
+(ert-deftest julia-repl-errors ()
+  (equal
+   (cdr (s-match julia-repl--CR-at "   @ Main.MyModule /tmp/tmp.jl:3"))
+   '("Main.MyModule" "/tmp/tmp.jl" "3"))
+  (equal
+   (cdr (s-match julia-repl--CR-at "   @ Foo ~/tmp.jl:99"))
+   '("Foo" "/tmp/tmp.jl" "99")))

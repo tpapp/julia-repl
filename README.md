@@ -181,6 +181,15 @@ Cygwin may require some rewriting of paths for `include` to work. After loading 
 ```
 as a reasonable default, or write custom rules for `julia-repl-path-rewrites`.
 
+## Clickable error locations
+
+Error locations in the inferior buffer should be clickable, implemented with `compilation-shell-minor-mode`.
+
+The error printing syntax changed over time, and legacy forms are not included, they are not needed if you are using Julia 1.6 or later. To get them back, use
+```emacs-lisp
+(setq julia-repl-compilation-location-legacy t)
+```
+
 ## Limitations
 
 See the [issues](https://github.com/tpapp/julia-repl/issues).

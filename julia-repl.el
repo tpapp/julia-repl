@@ -3,7 +3,7 @@
 ;; Copyright (C) 2016–2024 Tamas K. Papp
 ;; Author: Tamas Papp <tkpapp@gmail.com>
 ;; Keywords: languages
-;; Version: 1.4.0
+;; Version: 1.5.0
 ;; Package-Requires: ((emacs "25.1")(s "1.12"))
 ;; URL: https://github.com/tpapp/julia-repl
 
@@ -46,7 +46,6 @@
 (require 's)
 (require 'seq)
 (require 'subr-x)
-
 
 ;;
 ;; customizations
@@ -266,29 +265,39 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
       (when ret-p
 	(eat-term-send-string eat-terminal "\^M")))))
 
+(defconst julia-repl--CR-at
+   (rx "@" space
+     (? (group (one-or-more (or  "." alnum))) space)    ; group 1: package name
+     (group (+ (not (any space ">" "<" "(" ")" "\t" "\n" "," "'" "\"" ";" ":")))) ; group 2: path
+     ":"
+     (group (+ num))                    ; group 3: line number
+     )
+  "Matches “@ Foo ~/code/Foo/src/Foo.jl:100”. This is what is used in Julia >= 1.6")
+
+(defconst julia-repl--CR-filename
+  (rx (one-or-more (not (any " ><()\t\n,'\";:"))))
+  "An attempt to match filenames in error, info,  and warning messages printed by Julia.")
+
+(defconst julia-repl--CR-load-error
+  (rx
+   "while loading "
+   (group (regexp julia-repl--CR-filename))
+   ", in expression starting on line "
+   (group (one-or-more digit)))
+  "Compilation regexp matching “while loading /tmp/Foo.jl, in expression starting on line 2”.")
+
+(defconst julia-repl--CR-around
+  (rx
+   (or "around" "at" "Revise")
+   " "
+   (group (regexp julia-repl--CR-filename))
+   ":"
+   (group (one-or-more digit)))
+  "Compilation regexp matching “around /tmp/Foo.jl:2”, also starting with “at or “Revise”")
+
 ;;
 ;; global variables
 ;;
-
-(defconst julia-repl--rx-at
-  (rx (seq "@" (syntax whitespace)
-           (? (group (+ alnum)) space)  ; package name
-           (group (+ (not (any space ">" "<" "(" ")" "\t" "\n" "," "'" "\"" ";" ":")))) ; path
-           ":" (group (+ num))))        ; line
-  "Matches “@ Foo ~/code/Foo/src/Foo.jl:100”")
-
-(defvar julia-repl--compilation-regexp-alist
-  `(;; matches "while loading /tmp/Foo.jl, in expression starting on line 2"
-    (julia-load-error . ("while loading \\([^ ><()\t\n,'\";:]+\\), in expression starting on line \\([0-9]+\\)" 1 2))
-    ;; matches "around /tmp/Foo.jl:2", also starting with "at" or "Revise"
-    (julia-loc . ("\\(around\\|at\\|Revise\\) \\([^ ><()\t\n,'\";:]+\\):\\([0-9]+\\)" 2 3))
-    ;; matches "omitting file /tmp/Foo.jl due to parsing error near line 2", from Revise.parse_source!
-    (julia-warn-revise . ("omitting file \\([^ ><()\t\n,'\";:]+\\) due to parsing error near line \\([0-9]+\\)" 1 2))
-    (julia-error-at . (,julia-repl--rx-at 2 3))
-    )
-  "Specifications for highlighting error locations.
-
-Uses function ‘compilation-shell-minor-mode’.")
 
 (defvar julia-repl--terminal-backend
   (make-julia-repl--buffer-ansi-term)
@@ -374,6 +383,20 @@ generate a buffer name.")
 Valid values are NIL or a string. These take effect the next time
 a new Julia process is started.")
 
+(defvar julia-repl-compilation-location-legacy nil
+  "Whether to include recognize various legacy error messages in compilation output.
+ Mainly useful if you are using Julia <1.6.")
+
+(defun julia-repl--compilation-regexp-alist ()
+  "Return an alist suitable for use in `compilation-error-regexp-alist' for recognizing Julia error locations.
+
+ Cf `julia-repl-compilation-location-legacy'."
+  (let ((regexp-alist `((,julia-repl--CR-at 2 3))))
+    (if julia-repl-compilation-location-legacy
+        (cons regexp-alist
+              `((,julia-repl--CR-load-error 1 2) (,julia-repl--CR-around 1 2)))
+      regexp-alist)))
+
 ;;
 ;; REPL buffer creation and setup
 ;;
@@ -446,10 +469,7 @@ prevent further attempts."
 
 BASEDIR is used for resolving relative paths."
   (with-current-buffer inferior-buffer
-    (setq-local compilation-error-regexp-alist-alist
-                julia-repl--compilation-regexp-alist)
-    (setq-local compilation-error-regexp-alist
-                (mapcar #'car compilation-error-regexp-alist-alist))
+    (setq-local compilation-error-regexp-alist (julia-repl--compilation-regexp-alist))
     (when basedir
       (setq-local compilation-search-path (list basedir)))
     (compilation-shell-minor-mode 1)))
