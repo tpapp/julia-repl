@@ -189,6 +189,7 @@ The error printing syntax changed over time, and legacy forms are not included, 
 ```emacs-lisp
 (setq julia-repl-compilation-location-legacy t)
 ```
+If you find that a Julia error (warning, info, etc) message location is not clickable in Emacs, please open an issue.
 
 ## Limitations
 
