@@ -40,7 +40,7 @@
 
 (ert-deftest julia-repl-location-rx ()
   (let ((str "@ Foo ~/code/Foo/src/Foo.jl:100"))
-    (string-match julia-repl--rx-at str)
+    (string-match julia-repl--CR-at str)
     (equal (match-string 1 str) "Foo")
     (equal (match-string 2 str) "~/code/Foo/src/Foo.jl")
     (equal (match-string 3 str) "100")))
