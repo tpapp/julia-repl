@@ -11,7 +11,7 @@ It is recommended that you use this minor mode with [julia-mode](https://github.
 
 ## Installation and loading
 
-**Please make sure you have at least Emacs 25**. The `term` code changed a bit since Emacs 24, and the package does not support that and earlier versions. For example, Ubuntu has had Emacs 25 since 18.04LTS.
+**Please make sure you have at least Emacs 27.1**, as the package does not support earlier versions.
 
 Place this in your **Emacs initialization files** (eg `.emacs`):
 ```emacs-lisp
