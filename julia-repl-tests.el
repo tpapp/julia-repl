@@ -40,7 +40,29 @@
 
 (ert-deftest julia-repl-location-rx ()
   (let ((str "@ Foo ~/code/Foo/src/Foo.jl:100"))
-    (string-match julia-repl--rx-at str)
-    (equal (match-string 1 str) "Foo")
-    (equal (match-string 2 str) "~/code/Foo/src/Foo.jl")
-    (equal (match-string 3 str) "100")))
+    (should (string-match julia-repl--CR-at str))
+    (should (equal (match-string 1 str) "Foo"))
+    (should (equal (match-string 2 str) "~/code/Foo/src/Foo.jl"))
+    (should (equal (match-string 3 str) "100"))))
+
+(ert-deftest julia-repl-error-locations ()
+  ;; module name, absolute path
+  (should
+   (equal
+    (cdr (s-match julia-repl--CR-at "   @ Main.MyModule /tmp/tmp.jl:3"))
+    '("Main.MyModule" "/tmp/tmp.jl" "3")))
+  ;; tilde in path
+  (should
+   (equal
+    (cdr (s-match julia-repl--CR-at "   @ Foo ~/tmp.jl:99"))
+    '("Foo" "~/tmp.jl" "99")))
+  ;; underscore
+  (should
+   (equal
+    (cdr (s-match julia-repl--CR-at "   @ Main.test_loops ~/tmp.jl:7"))
+    '("Main.test_loops" "~/tmp.jl" "7")))
+  ;; no module
+  (should
+   (equal
+    (cdr (s-match julia-repl--CR-at "   @ ~/tmp.jl:7"))
+    '(nil "~/tmp.jl" "7"))))

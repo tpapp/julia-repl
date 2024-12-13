@@ -11,7 +11,7 @@ It is recommended that you use this minor mode with [julia-mode](https://github.
 
 ## Installation and loading
 
-**Please make sure you have at least Emacs 25**. The `term` code changed a bit since Emacs 24, and the package does not support that and earlier versions. For example, Ubuntu has had Emacs 25 since 18.04LTS.
+**Please make sure you have at least Emacs 27.1**, as the package does not support earlier versions.
 
 Place this in your **Emacs initialization files** (eg `.emacs`):
 ```emacs-lisp
@@ -180,6 +180,16 @@ Cygwin may require some rewriting of paths for `include` to work. After loading 
 (setq julia-repl-path-rewrite-rules julia-repl-cygwin-path-rewrite-rules)
 ```
 as a reasonable default, or write custom rules for `julia-repl-path-rewrites`.
+
+## Clickable error locations
+
+Error locations in the inferior buffer should be clickable, implemented with `compilation-shell-minor-mode`.
+
+The error printing syntax changed over time, and legacy forms are not included, they are not needed if you are using Julia 1.6 or later. To get them back, use
+```emacs-lisp
+(setq julia-repl-compilation-location-legacy t)
+```
+If you find that a Julia error (warning, info, etc) message location is not clickable in Emacs, please open an issue.
 
 ## Limitations
 
