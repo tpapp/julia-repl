@@ -51,4 +51,7 @@
    '("Main.MyModule" "/tmp/tmp.jl" "3"))
   (equal
    (cdr (s-match julia-repl--CR-at "   @ Foo ~/tmp.jl:99"))
-   '("Foo" "/tmp/tmp.jl" "99")))
+   '("Foo" "/tmp/tmp.jl" "99"))
+    (equal
+   (cdr (s-match julia-repl--CR-at "   @ Main.test_loops ~/tmp.jl:7"))
+   '("Main.test_loops" "~/tmp.jl" "7")))
