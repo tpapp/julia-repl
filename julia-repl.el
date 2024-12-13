@@ -267,12 +267,12 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
 
 (defconst julia-repl--CR-at
    (rx "@" space
-     (? (group (one-or-more (or  (any "._") alnum))) space)    ; group 1: package name
-     (group (+ (not (any space ">" "<" "(" ")" "\t" "\n" "," "'" "\"" ";" ":")))) ; group 2: path
-     ":"
-     (group (+ num))                    ; group 3: line number
-     )
-  "Matches “@ Foo ~/code/Foo/src/Foo.jl:100”. This is what is used in Julia >= 1.6")
+       (? (group (one-or-more (or  (any "._") alnum))) space)    ; group 1: module name
+       (group (+ (not (any space ">" "<" "(" ")" "\t" "\n" "," "'" "\"" ";" ":")))) ; group 2: path
+       ":"
+       (group (+ num))                    ; group 3: line number
+       )
+   "Matches “@ Foo ~/code/Foo/src/Foo.jl:100”. This is what is used in Julia >= 1.6")
 
 (defconst julia-repl--CR-filename
   (rx (one-or-more (not (any " ><()\t\n,'\";:"))))
