@@ -55,7 +55,7 @@
   (should
    (equal
     (cdr (s-match julia-repl--CR-at "   @ Foo ~/tmp.jl:99"))
-    '("Foo" "/tmp/tmp.jl" "99")))
+    '("Foo" "~/tmp.jl" "99")))
   ;; underscore
   (should
    (equal
