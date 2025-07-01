@@ -4,7 +4,7 @@
 ;; Author: Tamas Papp <tkpapp@gmail.com>
 ;; Keywords: languages
 ;; Version: 1.5.1
-;; Package-Requires: ((emacs "27.1")(s "1.12"))
+;; Package-Requires: ((emacs "29.1")(s "1.12"))
 ;; URL: https://github.com/tpapp/julia-repl
 
 ;;; Usage:
