@@ -914,7 +914,9 @@ be added."
          (read-only-mode -1)
          (erase-buffer)
          (insert imgdata)
-         (image-mode))))
+         (image-mode)
+         (image-transform-fit-to-window)
+         (add-hook 'window-size-change-functions (lambda (_) (image-transform-fit-to-window)) 0 t))))
     (_ (error "Unsupported data kind `%s' or MIME type `%s' (upgrade julia-repl or use older EmacsVterm.jl)"
               kind mime))))
 
