@@ -4,7 +4,7 @@
 ;; Author: Tamas Papp <tkpapp@gmail.com>
 ;; Keywords: languages
 ;; Version: 1.5.1
-;; Package-Requires: ((emacs "27.1")(s "1.12"))
+;; Package-Requires: ((emacs "29.1")(s "1.12"))
 ;; URL: https://github.com/tpapp/julia-repl
 
 ;;; Usage:
@@ -914,7 +914,9 @@ be added."
          (read-only-mode -1)
          (erase-buffer)
          (insert imgdata)
-         (image-mode))))
+         (image-mode)
+         (image-transform-fit-to-window)
+         (add-hook 'window-size-change-functions (lambda (_) (image-transform-fit-to-window)) 0 t))))
     (_ (error "Unsupported data kind `%s' or MIME type `%s' (upgrade julia-repl or use older EmacsVterm.jl)"
               kind mime))))
 
