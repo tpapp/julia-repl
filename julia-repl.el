@@ -854,11 +854,11 @@ name), separated by dots, as a list."
 	(with-current-buffer (julia-repl-inferior-buffer) (cd directory)))
     (warn "buffer not associated with a file")))
 
-(cl-defun julia-repl--find-projectfile (&optional (filename (buffer-file-name)))
-  "Find a project file in the parent directories of the filename "
-  (when filename
-    (cl-flet ((find-projectfile (filename)
-                                (locate-dominating-file (buffer-file-name) filename)))
+(cl-defun julia-repl-find-projectfile (&optional (start-filename (buffer-file-name)))
+  "Find a project file in the parent directories of the `start-filename'. When no such file is found, return `nil' "
+  (when start-filename
+    (cl-flet ((find-projectfile (project-filename)
+                (locate-dominating-file start-filename project-filename)))
       (or (find-projectfile "Project.toml")
           (find-projectfile "JuliaProject.toml")))))
 
@@ -871,7 +871,7 @@ When called with a prefix argument, activate the home project."
       (progn
         (message "activating home project")
         (julia-repl--send-string "import Pkg; Pkg.activate()"))
-    (if-let ((projectfile (julia-repl--find-projectfile)))
+    (if-let ((projectfile (julia-repl-find-projectfile)))
         (progn
           (message "activating %s" projectfile)
           (julia-repl--send-string
