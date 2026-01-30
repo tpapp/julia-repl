@@ -459,7 +459,8 @@ prevent further attempts."
   (unless (plist-member (cddr executable-record) :basedir)
     (let* ((executable-path (julia-repl--executable-path executable-record))
            (basedir (julia-repl--capture-basedir executable-path)))
-      (nconc executable-record `(:basedir ,basedir))
+      (when basedir
+        (nconc executable-record `(:basedir ,basedir)))
       (unless basedir
         (warn "could not capture basedir for Julia executable %s"
               executable-path)))))

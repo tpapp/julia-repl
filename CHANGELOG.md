@@ -1,4 +1,8 @@
+2025-07-19  Tamas Papp  <tkpapp@gmail.com>
+
 # Unreleased
+
+- protect against missing basedir
 
 # 1.3.0
 
