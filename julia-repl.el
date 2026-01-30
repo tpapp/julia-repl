@@ -52,7 +52,7 @@
 ;;
 
 (defgroup julia-repl nil
-  "A minor mode for a Julia REPL"
+  "A minor mode for a Julia REPL."
   :group 'julia)
 
 (defcustom julia-repl-inferior-buffer-name-base "julia"
@@ -85,16 +85,19 @@ Note that this affects all buffers using the ‘ansi-term’ map."
   :group 'julia-repl)
 
 (defcustom julia-repl-pop-to-buffer t
-  "When non-nil pop to julia repl"
+  "When non-nil, pop to `julia-repl'."
   :type 'symbol
   :group 'julia-repl)
 
 (defcustom julia-repl-path-rewrite-rules nil
   "A list of rewrite rules applied to paths sent with ‘include’ and similar.
 
-Each rule should be a function that is called with a path, in the given order. If the function returns ‘nil’, the next one is tried, otherwise the result is used as the rewritten path.
+Each rule should be a function that is called with a path, in the given
+order. If the function returns nil, the next one is tried, otherwise
+the result is used as the rewritten path.
 
-This can be used a workaround, usually necessary on non-Unix systems. Eg for Cygwin-based Windows, use
+This can be used a workaround, usually necessary on non-Unix systems. Eg
+for Cygwin-based Windows, use
 
    (setq julia-repl-path-rewrite-rules julia-repl-cygwin-path-rewrite-rules)
 
@@ -108,7 +111,7 @@ in your Emacs init file after loading this package."
   :group 'julia-repl)
 
 (defcustom julia-repl-set-term-escape t
-  "Set the escape char C-x globally for term. Useful for switching windows, but users who do not want this globally should set it to nil."
+  "Set the escape char \`C-x globally for term. Useful for switching windows, but users who do not want this globally should set it to nil."
   :type 'boolean
   :group 'julia-repl)
 
@@ -927,7 +930,7 @@ be added."
 
 \\{julia-repl-mode-map}"
   :init-value nil
-  :lighter ">"
+  :lighter " >"
   :keymap
   `((,(kbd "C-c C-a")    . julia-repl-activate-parent)
     (,(kbd "C-c C-b")    . julia-repl-send-buffer)
