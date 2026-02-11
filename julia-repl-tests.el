@@ -17,7 +17,8 @@
                  "c:/Users/PK/another.jl")))
 
 (cl-defmacro julia-repl--buffer (contents position &body body)
-  "Make a temporary buffer with ‘contents’ and point at ‘position’, then run ‘body’."
+  "Make a temporary buffer with ‘contents’ and point at ‘position’, then run
+‘body’."
   `(with-temp-buffer
      (julia-repl-mode)
      (insert ,contents)
@@ -39,11 +40,17 @@
     (should (equal (julia-repl--symbol-extraction "Foo.bar.baz.( " 6) symbols))))
 
 (ert-deftest julia-repl-location-rx ()
+  (let ((str "~/code/Foo/src/Foo.jl"))
+    (should (string-match julia-repl--CR-path str)))
   (let ((str "@ Foo ~/code/Foo/src/Foo.jl:100"))
     (should (string-match julia-repl--CR-at str))
     (should (equal (match-string 1 str) "Foo"))
     (should (equal (match-string 2 str) "~/code/Foo/src/Foo.jl"))
-    (should (equal (match-string 3 str) "100"))))
+    (should (equal (match-string 3 str) "100")))
+  (let ((str "in expression starting at ~/code/Foo/src/Foo.jl:100"))
+    (should (string-match julia-repl--CR-expression-starting str))
+    (should (equal (match-string 1 str) "~/code/Foo/src/Foo.jl"))
+    (should (equal (match-string 2 str) "100"))))
 
 (ert-deftest julia-repl-error-locations ()
   ;; module name, absolute path

@@ -3,7 +3,7 @@
 ;; Copyright (C) 2016–2024 Tamas K. Papp
 ;; Author: Tamas Papp <tkpapp@gmail.com>
 ;; Keywords: languages
-;; Version: 1.5.1
+;; Version: 1.5.2
 ;; Package-Requires: ((emacs "29.1")(s "1.12"))
 ;; URL: https://github.com/tpapp/julia-repl
 
@@ -268,14 +268,29 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
       (when ret-p
 	(eat-term-send-string eat-terminal "\^M")))))
 
+;;; compiler output regexps for navigation
+
+(defconst julia-repl--CR-path
+  (rx (+ (not (any space ">" "<" "(" ")" "\t" "\n" "," "'" "\"" ";" ":"))))
+  "A regexp matching paths (in Julia stacktraces).")
+
 (defconst julia-repl--CR-at
-   (rx "@" space
-       (? (group (one-or-more (or  (any "._") alnum))) space)    ; group 1: module name
-       (group (+ (not (any space ">" "<" "(" ")" "\t" "\n" "," "'" "\"" ";" ":")))) ; group 2: path
-       ":"
-       (group (+ num))                    ; group 3: line number
-       )
-   "Matches “@ Foo ~/code/Foo/src/Foo.jl:100”. This is what is used in Julia >= 1.6")
+  (rx "@" space
+      (? (group (one-or-more (or (any "._") alnum))) space) ; group 1: module name
+      (group (regexp julia-repl--CR-path)) ; group 2: path
+      ":"
+      (group (+ num))                   ; group 3: line number
+      )
+  "Matches “@ Foo ~/code/Foo/src/Foo.jl:100”. This is what is used in Julia >= 1.6")
+
+(defconst julia-repl--CR-expression-starting
+  (rx "in expression starting at"
+      (+ space)
+      (group (regexp julia-repl--CR-path)) ; group 1: path
+      ":"
+      (group (+ num))                   ; group 2: line
+      )
+  "Matches “in expression starting at ~/code/Foo/src/Foo.jl:100”.")
 
 (defconst julia-repl--CR-filename
   (rx (one-or-more (not (any " ><()\t\n,'\";:"))))
@@ -394,7 +409,8 @@ a new Julia process is started.")
   "Return an alist suitable for use in `compilation-error-regexp-alist' for recognizing Julia error locations.
 
  Cf `julia-repl-compilation-location-legacy'."
-  (let ((regexp-alist `((,julia-repl--CR-at 2 3))))
+  (let ((regexp-alist `((,julia-repl--CR-at 2 3)
+                        (,julia-repl--CR-expression-starting 1 2))))
     (if julia-repl-compilation-location-legacy
         (cons regexp-alist
               `((,julia-repl--CR-load-error 1 2) (,julia-repl--CR-around 1 2)))
@@ -644,7 +660,7 @@ This is the standard entry point for using this package."
   "Switch to the buffer that was active before last call to `julia-repl'."
   (interactive)
   (when (buffer-live-p julia-repl--script-buffer)
-    (if julia-repl-pop-to-buffer 
+    (if julia-repl-pop-to-buffer
 	(switch-to-buffer-other-window julia-repl--script-buffer)
       (switch-to-buffer julia-repl--script-buffer))))
 
