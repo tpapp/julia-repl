@@ -167,6 +167,15 @@ If you cannot edit your `startup.jl`, you can configure the editor in each repl 
 ```elisp
 (add-hook 'julia-repl-hook #'julia-repl-use-emacsclient)
 ```
+## Passing command line arguments, i.e. `push!` to `ARGS`
+
+If you need to pass some command line arguments, you can raise the REPL with `C-u C-c C-z` and you will be promted to write you command line arguments. They will be sent to the REPL in a `push!(ARGS,[...])` call.
+
+This is equivalent of running in the terminal
+
+```
+$ julia -i <my_scrip>.jl arg1 args2 ...
+```
 
 ## More colors
 
