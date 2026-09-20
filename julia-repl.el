@@ -152,7 +152,7 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
 
 (cl-defmethod julia-repl--locate-live-buffer ((_terminal-backend julia-repl--buffer-ansi-term)
                                               name)
-  (if-let ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
+  (if-let* ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
       (with-current-buffer inferior-buffer
         (cl-assert (eq major-mode 'term-mode) nil "Expected term-mode. Changed mode or backends?"))
       (when (term-check-proc inferior-buffer)
@@ -206,7 +206,7 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
 
   (cl-defmethod julia-repl--locate-live-buffer ((_terminal-backend julia-repl--buffer-vterm)
                                                 name)
-    (if-let ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
+    (if-let* ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
         (with-current-buffer inferior-buffer
           (cl-assert (eq major-mode 'vterm-mode) nil "Expected vterm-mode. Changed mode or backends?")
           (when (vterm-check-proc inferior-buffer)
@@ -243,7 +243,7 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
 
   (cl-defmethod julia-repl--locate-live-buffer ((_terminal-backend julia-repl--buffer-eat)
 						name)
-    (if-let ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
+    (if-let* ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
 	(with-current-buffer inferior-buffer
 	  (cl-assert (eq major-mode 'eat-mode) nil "Expected eat-mode. Changed mode or backends?")
 	  (when (eat-term-live-p inferior-buffer)
@@ -866,7 +866,7 @@ name), separated by dots, as a list."
 (defun julia-repl-cd ()
   "Change directory to the directory of the current buffer (if applicable)."
   (interactive)
-  (if-let ((directory (file-name-directory (buffer-file-name))))
+  (if-let* ((directory (file-name-directory (buffer-file-name))))
       (progn
 	(julia-repl--send-string (concat "cd(\""
                                          (julia-repl--path-rewrite directory julia-repl-path-rewrite-rules)
@@ -891,7 +891,7 @@ When called with a prefix argument, activate the home project."
       (progn
         (message "activating home project")
         (julia-repl--send-string "import Pkg; Pkg.activate()"))
-    (if-let ((projectfile (julia-repl-find-projectfile)))
+    (if-let* ((projectfile (julia-repl-find-projectfile)))
         (progn
           (message "activating %s" projectfile)
           (julia-repl--send-string
@@ -961,7 +961,7 @@ be added."
     (,(kbd "C-c C-v")    . julia-repl-prompt-set-executable-key)
     (,(kbd "C-c C-z")    . julia-repl)
     (,(kbd "<C-return>") . julia-repl-send-line))
-  (when-let ((filename (buffer-file-name)))
+  (when-let* ((filename (buffer-file-name)))
     (setq-local default-directory (file-name-directory filename))))
 
 (provide 'julia-repl)
