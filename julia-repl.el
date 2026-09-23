@@ -268,6 +268,57 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
       (when ret-p
 	(eat-term-send-string eat-terminal "\^M")))))
 
+
+;;; ghostel term
+
+(with-eval-after-load 'ghostel
+
+  ;; this variables are defined by ghostel.el and are only locally changed.
+  (defvar ghostel--process)
+  (defvar ghostel-use-native-pty)
+  (defvar ghostel-buffer-name-function)
+
+  (cl-defstruct julia-repl--buffer-ghostel
+    "Terminal backend using ‘ghostel’, which needs to be installed and loaded.")
+
+  (defun julia-repl--ghostel-scroll-to-bottom ()
+    "Scroll visible windows displaying the current ghostel buffer to the bottom."
+    (dolist (window (get-buffer-window-list (current-buffer) nil t))
+      (ghostel--anchor-window window t)))
+
+  (cl-defmethod julia-repl--locate-live-buffer ((_terminal-backend julia-repl--buffer-ghostel)
+						name)
+    (if-let ((inferior-buffer (get-buffer (julia-repl--add-earmuffs name))))
+	(with-current-buffer inferior-buffer
+	  (cl-assert (eq major-mode 'ghostel-mode) nil "Expected ghostel-mode. Changed mode or backends?")
+	  (when (process-live-p ghostel--process) ; check if Julia sessions is still live
+	    inferior-buffer))))
+
+  (cl-defmethod julia-repl--make-buffer ((_terminal-backend julia-repl--buffer-ghostel)
+					 name executable-path switches)
+    (let ((inferior-buffer (get-buffer-create (julia-repl--add-earmuffs name))))
+      (with-current-buffer inferior-buffer
+	(let ((ghostel-use-native-pty nil)	  ; use Emacs process machinery
+	      (ghostel-buffer-name-function nil)) ; avoid ghostel's renaming
+	  (ghostel-exec inferior-buffer executable-path switches))
+	(setq-local ghostel-buffer-name-function nil)
+	(mapc (lambda (k)
+		(define-key ghostel-semi-char-mode-map k (global-key-binding k)))
+	      julia-repl-captures)
+	(local-set-key (kbd "C-c C-z") #'julia-repl--switch-back))
+      inferior-buffer))
+
+  (cl-defmethod julia-repl--send-to-backend ((_terminal-backend julia-repl--buffer-ghostel)
+					     buffer string paste-p ret-p)
+    (with-current-buffer buffer
+      (julia-repl--ghostel-scroll-to-bottom)
+      (if paste-p
+	  (ghostel-paste-string string)
+        (ghostel-send-string string))
+      (when ret-p
+	(ghostel-send-key "return")))))
+
+
 ;;; compiler output regexps for navigation
 
 (defconst julia-repl--CR-path
@@ -330,7 +381,9 @@ Valid backends are currently:
 
 - ‘vterm’, which requires that vterm is installed. See URL ‘https://github.com/akermu/emacs-libvterm’.
 
-- ‘eat’, which requires that eat is installed. See URL ‘https://codeberg.org/akib/emacs-eat’."
+- ‘eat’, which requires that eat is installed. See URL ‘https://codeberg.org/akib/emacs-eat’.
+
+- ‘ghostel’, which requires that ghostel is installed. See URL ‘https://github.com/dakra/ghostel’."
   (interactive "S")
   (cl-case backend
     (ansi-term
@@ -342,6 +395,9 @@ Valid backends are currently:
     (eat
      (require 'eat)
      (setq julia-repl--terminal-backend (make-julia-repl--buffer-eat)))
+    (ghostel
+     (require 'ghostel)
+     (setq julia-repl--terminal-backend (make-julia-repl--buffer-ghostel)))
     (otherwise
      (error "Unrecognized backend “%s”." backend))))
 

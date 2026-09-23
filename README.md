@@ -120,7 +120,7 @@ then the next time you open a REPL, it will have the name `*julia-master-tests*`
 
 The default is `ansi-term`, which is included in Emacs, but it is recommended that you use [`vterm` via `emacs-libvterm`](https://github.com/akermu/emacs-libvterm) (it is not the default since you need to install an extra package and the binary).
 
-You can also use [`eat`](https://codeberg.org/akib/emacs-eat/) as a backend.
+You can also use [`eat`](https://codeberg.org/akib/emacs-eat/) or [`ghostel`](https://github.com/dakra/ghostel) as a backend.
 
 **Note to Windows users**: you may not be able to use `eat` and/or `vterm` directly from native Windows Emacs, but there have been reports of people using them successfully from WSL (Windows Subsistem for Linux) 2. Please understand that supporting those terminal emulators is outside the scope of this package; `julia-repl` merely provides bindings for them conditional on availability on your system.
 
@@ -149,6 +149,10 @@ See the help of `term` for more.
 #### Using `eat`
 
 Install [`eat`](https://codeberg.org/akib/emacs-eat/) and use `(julia-repl-set-terminal-backend 'eat)` in your config file.
+
+#### Using `ghostel`
+
+Install [`ghostel`](https://github.com/dakra/ghostel) and use `(julia-repl-set-terminal-backend 'ghostel)` in your config file.
 
 ## Using the @edit macro
 
