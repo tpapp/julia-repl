@@ -284,7 +284,7 @@ When PASTE-P, “bracketed paste” mode will be used. When RET-P, terminate wit
   (defun julia-repl--ghostel-scroll-to-bottom ()
     "Scroll visible windows displaying the current ghostel buffer to the bottom."
     (dolist (window (get-buffer-window-list (current-buffer) nil t))
-      (ghostel--anchor-window window)))
+      (ghostel--anchor-window window t)))
 
   (cl-defmethod julia-repl--locate-live-buffer ((_terminal-backend julia-repl--buffer-ghostel)
 						name)
